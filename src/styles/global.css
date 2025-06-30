@@ -1,0 +1,193 @@
+/* Global CSS Styles */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile Navigation Styles */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none !important;
+  }
+  
+  .mobile-menu-button {
+    display: block !important;
+  }
+  
+  .main-content {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  
+  .sidebar {
+    max-height: 50vh !important;
+    order: 2 !important;
+  }
+  
+  .results-area {
+    order: 1 !important;
+  }
+  
+  .selected-draw-card {
+    transform: none !important;
+  }
+}
+
+/* Responsive Grid Adjustments */
+@media (max-width: 480px) {
+  .consolation-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .footer-container {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+}
+
+/* Hover Effects */
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.download-button:hover,
+.hero-download-button:hover,
+.welcome-download-button:hover,
+.footer-download-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.draw-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.footer-link:hover {
+  color: var(--primary-color) !important;
+}
+
+.ticket-card:hover,
+.consolation-ticket:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Focus Styles for Accessibility */
+button:focus,
+a:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color-hover);
+}
+
+/* CSS Variables for Dynamic Theming */
+.dark {
+  --primary-color: #FF0000;
+  --primary-color-hover: #FF0000;
+  --background-color: #121212;
+  --surface-color: #1E1E1E;
+  --text-primary: #FFFFFF;
+  --text-secondary: #E0E0E0;
+  --text-tertiary: #BDBDBD;
+  --border-color: #424242;
+  --scrollbar-track: #424242;
+}
+
+:root {
+  --primary-color: #FF0000;
+  --primary-color-hover: #FF0000;
+  --background-color: #FFF1F2;
+  --surface-color: #FFFFFF;
+  --text-primary: #000000;
+  --text-secondary: #000000DE;
+  --text-tertiary: #00000099;
+  --border-color: #e9ecef;
+  --scrollbar-track: #f1f1f1;
+}
+
+/* Ensure red colors stay pure and vibrant */
+.pure-red {
+  background-color: #FF0000 !important;
+  color: #FF0000 !important;
+}
+
+/* Override any opacity or color changes on scroll */
+.navbar,
+.hero,
+.sidebar-header,
+.results-header,
+.prize-header {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Print Styles */
+@media print {
+  .navbar,
+  .footer,
+  .theme-toggle,
+  .download-button,
+  .hero-download-button,
+  .welcome-download-button,
+  .footer-download-button {
+    display: none !important;
+  }
+  
+  .app {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  .sidebar,
+  .results-area {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* Reduced Motion for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .draw-card,
+  .ticket-card,
+  .consolation-ticket {
+    border-width: 2px !important;
+  }
+}
