@@ -1,5 +1,4 @@
-
-// -// File: lottery-app/src/components/Navbar.js
+// File: lottery-app/src/components/Navbar.js
 import React from 'react';
 import { getStyles } from '../styles/styles';
 
@@ -12,17 +11,76 @@ const Navbar = ({
 }) => {
   const styles = getStyles(isDarkMode);
 
+  // Navigation action handlers
+  const handleNavigation = (sectionId) => {
+    // Close mobile menu when navigating
+    setIsMobileMenuOpen(false);
+    
+    // Smooth scroll to section
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    } else {
+      // If section doesn't exist, scroll to top
+      window.scrollTo({ 
+        top: 0, 
+        behavior: 'smooth' 
+      });
+    }
+  };
+
+  const handleRecentDraws = () => {
+    // Close mobile menu
+    setIsMobileMenuOpen(false);
+    
+    // Scroll to the sidebar/draws section
+    const sidebar = document.querySelector('[data-section="sidebar"]') || 
+                   document.querySelector('.sidebar') ||
+                   document.getElementById('draws');
+    
+    if (sidebar) {
+      sidebar.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    } else {
+      // Fallback: scroll to main content
+      const mainContent = document.querySelector('main');
+      if (mainContent) {
+        mainContent.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }
+  };
+
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <nav style={styles.navbar}>
       <div style={styles.navContainer}>
         <div style={styles.logo}>
-          <h1 style={styles.logoText}>LOTTO</h1>
+          <h1 
+            style={styles.logoText}
+            onClick={() => handleNavigation('home')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && handleNavigation('home')}
+          >
+            LOTTO
+          </h1>
         </div>
         
         {/* Mobile Menu Button */}
         <button 
           style={styles.mobileMenuButton}
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          onClick={handleMobileMenuToggle}
           aria-label="Toggle mobile menu"
         >
           ☰
@@ -30,10 +88,36 @@ const Navbar = ({
         
         {/* Desktop Navigation */}
         <div style={styles.navLinks}>
-          <a href="#home" style={styles.navLink}>Home</a>
-          <a href="#results" style={styles.navLink}>Results</a>
-          <a href="#about" style={styles.navLink}>About</a>
-          <a href="#contact" style={styles.navLink}>Contact</a>
+          <button 
+            style={styles.navLink}
+            onClick={() => handleNavigation('home')}
+          >
+            Home
+          </button>
+          <button 
+            style={styles.navLink}
+            onClick={handleRecentDraws}
+          >
+            Recent Draws
+          </button>
+          <button 
+            style={styles.navLink}
+            onClick={() => handleNavigation('results')}
+          >
+            Results
+          </button>
+          <button 
+            style={styles.navLink}
+            onClick={() => handleNavigation('about')}
+          >
+            About
+          </button>
+          <button 
+            style={styles.navLink}
+            onClick={() => handleNavigation('contact')}
+          >
+            Contact
+          </button>
           <button style={styles.downloadButton} onClick={onDownloadApp}>
             📱 Download App
           </button>
@@ -51,10 +135,36 @@ const Navbar = ({
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div style={styles.mobileNavMenu}>
-            <a href="#home" style={styles.mobileNavLink}>Home</a>
-            <a href="#results" style={styles.mobileNavLink}>Results</a>
-            <a href="#about" style={styles.mobileNavLink}>About</a>
-            <a href="#contact" style={styles.mobileNavLink}>Contact</a>
+            <button 
+              style={styles.mobileNavLink}
+              onClick={() => handleNavigation('home')}
+            >
+              Home
+            </button>
+            <button 
+              style={styles.mobileNavLink}
+              onClick={handleRecentDraws}
+            >
+              📊 Recent Draws
+            </button>
+            <button 
+              style={styles.mobileNavLink}
+              onClick={() => handleNavigation('results')}
+            >
+              Results
+            </button>
+            <button 
+              style={styles.mobileNavLink}
+              onClick={() => handleNavigation('about')}
+            >
+              About
+            </button>
+            <button 
+              style={styles.mobileNavLink}
+              onClick={() => handleNavigation('contact')}
+            >
+              Contact
+            </button>
             <button style={styles.mobileDownloadButton} onClick={onDownloadApp}>
               📱 Download App
             </button>

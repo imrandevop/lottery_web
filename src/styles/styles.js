@@ -49,7 +49,10 @@ export const getStyles = (isDarkMode) => {
       fontWeight: 'bold',
       margin: 0,
       letterSpacing: '2px',
-      color: isDarkMode ? '#FF0000' : '#FFFFFF'
+      color: isDarkMode ? '#FF0000' : '#FFFFFF',
+      cursor: 'pointer',
+      transition: 'transform 0.2s ease',
+      userSelect: 'none'
     },
     
     // Theme Toggle Button
@@ -66,7 +69,8 @@ export const getStyles = (isDarkMode) => {
       fontSize: '18px',
       marginLeft: '15px',
       minHeight: isMobile ? '44px' : '40px',
-      minWidth: isMobile ? '44px' : '40px'
+      minWidth: isMobile ? '44px' : '40px',
+      transition: 'all 0.3s ease'
     },
     
     // Mobile Menu Button
@@ -97,7 +101,14 @@ export const getStyles = (isDarkMode) => {
       fontSize: '16px',
       transition: 'all 0.3s ease',
       padding: '8px 16px',
-      borderRadius: '20px'
+      borderRadius: '20px',
+      border: 'none',
+      backgroundColor: 'transparent',
+      cursor: 'pointer',
+      minHeight: isMobile ? '44px' : 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     
     // Mobile Navigation
@@ -141,7 +152,8 @@ export const getStyles = (isDarkMode) => {
       fontWeight: 'bold',
       cursor: 'pointer',
       minHeight: isMobile ? '44px' : 'auto',
-      minWidth: isMobile ? '44px' : 'auto'
+      minWidth: isMobile ? '44px' : 'auto',
+      transition: 'all 0.3s ease'
     },
     mobileDownloadButton: {
       backgroundColor: 'white',
@@ -211,6 +223,146 @@ export const getStyles = (isDarkMode) => {
       fontWeight: 'bold',
       cursor: 'pointer',
       boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+    },
+    
+    // About Section
+    aboutSection: {
+      backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+      padding: 'clamp(40px, 8vh, 80px) 0',
+      transition: 'background-color 0.3s ease'
+    },
+    aboutContent: {
+      textAlign: 'center'
+    },
+    aboutGrid: {
+      display: 'grid',
+      gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+      gap: 'clamp(20px, 4vw, 30px)',
+      marginTop: '40px'
+    },
+    aboutCard: {
+      backgroundColor: isDarkMode ? '#121212' : '#FFF1F2',
+      padding: 'clamp(25px, 5vw, 35px)',
+      borderRadius: '15px',
+      textAlign: 'center',
+      boxShadow: isDarkMode ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.1)',
+      transition: 'all 0.3s ease'
+    },
+    
+    // Contact Section
+    contactSection: {
+      backgroundColor: isDarkMode ? '#121212' : '#FFF1F2',
+      padding: 'clamp(40px, 8vh, 80px) 0',
+      transition: 'background-color 0.3s ease'
+    },
+    contactContent: {
+      textAlign: 'center'
+    },
+    contactGrid: {
+      display: 'grid',
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+      gap: 'clamp(30px, 6vw, 50px)',
+      marginTop: '40px',
+      textAlign: 'left'
+    },
+    contactInfo: {
+      backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+      padding: 'clamp(25px, 5vw, 35px)',
+      borderRadius: '15px',
+      boxShadow: isDarkMode ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.1)'
+    },
+    contactForm: {
+      backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+      padding: 'clamp(25px, 5vw, 35px)',
+      borderRadius: '15px',
+      boxShadow: isDarkMode ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.1)'
+    },
+    contactDetails: {
+      marginTop: '20px'
+    },
+    contactItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      margin: '15px 0',
+      fontSize: '16px',
+      color: isDarkMode ? '#E0E0E0' : '#666666'
+    },
+    contactIcon: {
+      fontSize: '20px'
+    },
+    
+    // Form Styles
+    form: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '15px'
+    },
+    formInput: {
+      padding: '12px 15px',
+      borderRadius: '8px',
+      border: isDarkMode ? '2px solid #424242' : '2px solid #e9ecef',
+      backgroundColor: isDarkMode ? '#121212' : '#FFFFFF',
+      color: isDarkMode ? '#FFFFFF' : '#000000',
+      fontSize: '16px',
+      transition: 'border-color 0.3s ease'
+    },
+    formTextarea: {
+      padding: '12px 15px',
+      borderRadius: '8px',
+      border: isDarkMode ? '2px solid #424242' : '2px solid #e9ecef',
+      backgroundColor: isDarkMode ? '#121212' : '#FFFFFF',
+      color: isDarkMode ? '#FFFFFF' : '#000000',
+      fontSize: '16px',
+      resize: 'vertical',
+      fontFamily: 'inherit',
+      transition: 'border-color 0.3s ease'
+    },
+    formButton: {
+      backgroundColor: '#FF0000',
+      color: 'white',
+      border: 'none',
+      padding: '12px 25px',
+      borderRadius: '8px',
+      fontSize: '16px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease'
+    },
+    
+    // Section Titles
+    sectionTitle: {
+      fontSize: 'clamp(2rem, 5vw, 2.5rem)',
+      fontWeight: 'bold',
+      color: isDarkMode ? '#FFFFFF' : '#000000',
+      marginBottom: '20px',
+      transition: 'color 0.3s ease'
+    },
+    cardTitle: {
+      fontSize: 'clamp(1.2rem, 3vw, 1.4rem)',
+      fontWeight: 'bold',
+      color: isDarkMode ? '#FFFFFF' : '#000000',
+      marginBottom: '15px',
+      transition: 'color 0.3s ease'
+    },
+    cardText: {
+      fontSize: 'clamp(14px, 2.5vw, 16px)',
+      color: isDarkMode ? '#E0E0E0' : '#666666',
+      lineHeight: '1.6',
+      transition: 'color 0.3s ease'
+    },
+    contactTitle: {
+      fontSize: 'clamp(1.3rem, 3.5vw, 1.5rem)',
+      fontWeight: 'bold',
+      color: isDarkMode ? '#FFFFFF' : '#000000',
+      marginBottom: '15px',
+      transition: 'color 0.3s ease'
+    },
+    contactText: {
+      fontSize: 'clamp(14px, 2.5vw, 16px)',
+      color: isDarkMode ? '#E0E0E0' : '#666666',
+      lineHeight: '1.6',
+      transition: 'color 0.3s ease'
     },
     
     // Main Container

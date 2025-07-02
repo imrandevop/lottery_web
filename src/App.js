@@ -90,29 +90,134 @@ export default function App() {
         onDownloadApp={handleDownloadApp}
       />
 
-      <Hero onDownloadApp={handleDownloadApp} isDarkMode={isDarkMode} />
+      {/* Home Section */}
+      <section id="home">
+        <Hero onDownloadApp={handleDownloadApp} isDarkMode={isDarkMode} />
+      </section>
 
-      <main style={getStyles(isDarkMode).container}>
-        <div style={getStyles(isDarkMode).mainContent}>
-          <Sidebar 
-            lotteryDraws={lotteryDraws}
-            selectedDraw={selectedDraw}
-            loading={loading}
-            error={error}
-            onDrawClick={handleDrawClick}
-            isDarkMode={isDarkMode}
-          />
-          
-          <ResultsArea 
-            selectedDraw={selectedDraw}
-            selectedResults={selectedResults}
-            resultsLoading={resultsLoading}
-            error={error}
-            onDownloadApp={handleDownloadApp}
-            isDarkMode={isDarkMode}
-          />
+      {/* Results Section */}
+      <section id="results">
+        <main style={getStyles(isDarkMode).container}>
+          <div style={getStyles(isDarkMode).mainContent}>
+            <div data-section="sidebar">
+              <Sidebar 
+                lotteryDraws={lotteryDraws}
+                selectedDraw={selectedDraw}
+                loading={loading}
+                error={error}
+                onDrawClick={handleDrawClick}
+                isDarkMode={isDarkMode}
+              />
+            </div>
+            
+            <ResultsArea 
+              selectedDraw={selectedDraw}
+              selectedResults={selectedResults}
+              resultsLoading={resultsLoading}
+              error={error}
+              onDownloadApp={handleDownloadApp}
+              isDarkMode={isDarkMode}
+            />
+          </div>
+        </main>
+      </section>
+
+      {/* About Section */}
+      <section id="about" style={getStyles(isDarkMode).aboutSection}>
+        <div style={getStyles(isDarkMode).container}>
+          <div style={getStyles(isDarkMode).aboutContent}>
+            <h2 style={getStyles(isDarkMode).sectionTitle}>About LOTTO</h2>
+            <div style={getStyles(isDarkMode).aboutGrid}>
+              <div style={getStyles(isDarkMode).aboutCard}>
+                <h3 style={getStyles(isDarkMode).cardTitle}>🎯 Instant Results</h3>
+                <p style={getStyles(isDarkMode).cardText}>
+                  Get Kerala lottery results instantly as soon as they're announced. 
+                  No more waiting or searching multiple websites.
+                </p>
+              </div>
+              <div style={getStyles(isDarkMode).aboutCard}>
+                <h3 style={getStyles(isDarkMode).cardTitle}>📱 Mobile Friendly</h3>
+                <p style={getStyles(isDarkMode).cardText}>
+                  Access results on any device - mobile, tablet, or desktop. 
+                  Download our app for the best experience.
+                </p>
+              </div>
+              <div style={getStyles(isDarkMode).aboutCard}>
+                <h3 style={getStyles(isDarkMode).cardTitle}>🔔 Notifications</h3>
+                <p style={getStyles(isDarkMode).cardText}>
+                  Never miss a draw! Get instant notifications when new results 
+                  are available for your favorite lottery games.
+                </p>
+              </div>
+              <div style={getStyles(isDarkMode).aboutCard}>
+                <h3 style={getStyles(isDarkMode).cardTitle}>✅ Accurate Data</h3>
+                <p style={getStyles(isDarkMode).cardText}>
+                  All results are verified and updated directly from official sources. 
+                  Trust our platform for reliable lottery information.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" style={getStyles(isDarkMode).contactSection}>
+        <div style={getStyles(isDarkMode).container}>
+          <div style={getStyles(isDarkMode).contactContent}>
+            <h2 style={getStyles(isDarkMode).sectionTitle}>Contact Us</h2>
+            <div style={getStyles(isDarkMode).contactGrid}>
+              <div style={getStyles(isDarkMode).contactInfo}>
+                <h3 style={getStyles(isDarkMode).contactTitle}>Get in Touch</h3>
+                <p style={getStyles(isDarkMode).contactText}>
+                  Have questions about lottery results or need help with our app? 
+                  We're here to help you 24/7.
+                </p>
+                <div style={getStyles(isDarkMode).contactDetails}>
+                  <div style={getStyles(isDarkMode).contactItem}>
+                    <span style={getStyles(isDarkMode).contactIcon}>📧</span>
+                    <span>support@lotto-kerala.com</span>
+                  </div>
+                  <div style={getStyles(isDarkMode).contactItem}>
+                    <span style={getStyles(isDarkMode).contactIcon}>📱</span>
+                    <span>+91 9876543210</span>
+                  </div>
+                  <div style={getStyles(isDarkMode).contactItem}>
+                    <span style={getStyles(isDarkMode).contactIcon}>⏰</span>
+                    <span>24/7 Support Available</span>
+                  </div>
+                </div>
+              </div>
+              <div style={getStyles(isDarkMode).contactForm}>
+                <h3 style={getStyles(isDarkMode).contactTitle}>Send Message</h3>
+                <form style={getStyles(isDarkMode).form}>
+                  <input 
+                    type="text" 
+                    placeholder="Your Name" 
+                    style={getStyles(isDarkMode).formInput}
+                  />
+                  <input 
+                    type="email" 
+                    placeholder="Your Email" 
+                    style={getStyles(isDarkMode).formInput}
+                  />
+                  <textarea 
+                    placeholder="Your Message" 
+                    rows="4"
+                    style={getStyles(isDarkMode).formTextarea}
+                  ></textarea>
+                  <button 
+                    type="submit" 
+                    style={getStyles(isDarkMode).formButton}
+                  >
+                    Send Message
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <Footer onDownloadApp={handleDownloadApp} isDarkMode={isDarkMode} />
     </div>
