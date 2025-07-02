@@ -1,3 +1,4 @@
+// File: lottery-app/src/components/ResultsArea.js
 import React from 'react';
 import { getStyles } from '../styles/styles';
 import { formatShortDate } from '../utils/formatters';

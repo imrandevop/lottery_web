@@ -1,3 +1,4 @@
+// File: lottery-app/src/components/PrizeSection.js
 import React from 'react';
 import { getStyles } from '../styles/styles';
 import { formatCurrency } from '../utils/formatters';

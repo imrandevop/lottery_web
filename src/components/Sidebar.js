@@ -1,3 +1,5 @@
+
+// -// File: lottery-app/src/components/Sidebar.js
 import React from 'react';
 import { getStyles } from '../styles/styles';
 import { formatShortDate, formatCurrency } from '../utils/formatters';

@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -12,6 +13,7 @@ import './styles/global.css';
 export default function App() {
   const [selectedDraw, setSelectedDraw] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
   // Custom hooks
   const { isDarkMode, toggleTheme } = useTheme();
@@ -23,6 +25,25 @@ export default function App() {
     error, 
     fetchDrawResults 
   } = useLotteryData();
+
+  // Handle window resize for responsive styles
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile menu when resizing to desktop
+  useEffect(() => {
+    if (windowWidth >= 992 && isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [windowWidth, isMobileMenuOpen]);
 
   // Handle when a draw is selected
   const handleDrawClick = (draw) => {
