@@ -59,6 +59,13 @@ const KeralaLotteryApp = () => {
       
       if (data.status === 'success' && data.results) {
         setLotteryResults(data.results);
+        
+        // Auto-select the latest (first) lottery result
+        if (data.results.length > 0) {
+          const latestLottery = data.results[0];
+          setSelectedLottery(latestLottery);
+          fetchLotteryResult(latestLottery.unique_id);
+        }
       } else {
         throw new Error('Invalid response format');
       }
