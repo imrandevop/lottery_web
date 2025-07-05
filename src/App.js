@@ -115,6 +115,279 @@ const KeralaLotteryApp = () => {
     fetchLotteryResult(lottery.unique_id);
   };
 
+  const handlePrint = () => {
+    // Add print-specific styles
+    const printStyles = `
+      <style>
+        @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+          }
+          
+          @page {
+            size: A4 portrait !important;
+            margin: 4mm !important;
+          }
+          
+          body {
+            font-family: Arial, sans-serif !important;
+            background: white !important;
+            color: black !important;
+            font-size: 16px !important;
+            line-height: 1.1 !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+          
+          .print-container {
+            width: 100% !important;
+            height: 100% !important;
+            border: 3px solid #000 !important;
+            background: white !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          
+          .print-header {
+            background: #e0e0e0 !important;
+            padding: 4px 8px !important;
+            border-bottom: 3px solid #000 !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            font-weight: bold !important;
+            font-size: 16px !important;
+            flex-shrink: 0 !important;
+          }
+          
+          .print-title {
+            font-size: 18px !important;
+            font-weight: bold !important;
+            text-align: center !important;
+            flex: 1 !important;
+          }
+          
+          .print-content {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          
+          .print-prize-section {
+            border-bottom: 1px solid #000 !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          
+          .print-prize-header {
+            background: #d0d0d0 !important;
+            padding: 2px 6px !important;
+            border-bottom: 1px solid #000 !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            font-weight: bold !important;
+            flex-shrink: 0 !important;
+          }
+          
+          .print-prize-title {
+            font-size: 13px !important;
+            color: #000 !important;
+          }
+          
+          .print-prize-amount {
+            font-size: 11px !important;
+            color: #000 !important;
+            background: #f5f5f5 !important;
+            padding: 1px 4px !important;
+            border: 1px solid #999 !important;
+            border-radius: 2px !important;
+          }
+          
+          .print-numbers-section {
+            padding: 1px 3px !important;
+            background: white !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          
+          .print-numbers-grid {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 2px !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
+          }
+          
+          .print-number {
+            border: 1px solid #666 !important;
+            padding: 3px 5px !important;
+            text-align: center !important;
+            font-family: monospace !important;
+            font-weight: bold !important;
+            background: white !important;
+            font-size: 13px !important;
+            min-width: 48px !important;
+            height: 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+          }
+          
+          .print-number-large {
+            border: 2px solid #666 !important;
+            padding: 3px 6px !important;
+            text-align: center !important;
+            font-family: monospace !important;
+            font-weight: bold !important;
+            background: white !important;
+            font-size: 13px !important;
+            margin: 0 auto !important;
+            display: block !important;
+            width: fit-content !important;
+          }
+          
+          .print-footer-text {
+            padding: 2px 6px !important;
+            font-size: 8px !important;
+            text-align: justify !important;
+            line-height: 1.1 !important;
+            border-top: 2px solid #000 !important;
+            flex-shrink: 0 !important;
+          }
+          
+          /* Hide everything except print content */
+          body > *:not(.print-only) {
+            display: none !important;
+          }
+          
+          .print-only {
+            display: block !important;
+          }
+          
+          /* Special styling for single number prizes */
+          .single-number-prize .print-numbers-section {
+            justify-content: center !important;
+          }
+          
+          /* Compact for many numbers */
+          .many-numbers .print-number {
+            min-width: 44px !important;
+            font-size: 11px !important;
+            height: 18px !important;
+          }
+          
+          .many-numbers .print-numbers-grid {
+            gap: 1px !important;
+          }
+          
+          /* Medium size for moderate numbers */
+          .medium-numbers .print-number {
+            min-width: 46px !important;
+            font-size: 12px !important;
+            height: 19px !important;
+          }
+        }
+      </style>
+    `;
+    
+    // Create print content
+    if (resultData) {
+      const printWindow = window.open('', '_blank');
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${resultData.lottery_name} - ${formatDate(resultData.date)}</title>
+          <meta charset="UTF-8">
+          ${printStyles}
+        </head>
+        <body>
+          <div class="print-only print-container">
+            <div class="print-header">
+              <span>${resultData.draw_number || 'KN-XXX'}</span>
+              <span class="print-title">${resultData.lottery_name}</span>
+              <span>${formatDate(resultData.date)}</span>
+            </div>
+            
+            <div class="print-content">
+              ${resultData.prizes?.map((prize, index) => {
+                const ticketNumbers = prize.tickets ? 
+                  prize.tickets.map(t => t.ticket_number) : 
+                  prize.ticket_numbers.split(' ');
+                
+                const isSingleNumber = ticketNumbers.length === 1;
+                const isManyNumbers = ticketNumbers.length > 100;
+                const isMediumNumbers = ticketNumbers.length > 20 && ticketNumbers.length <= 100;
+                
+                const prizeClass = isSingleNumber ? 'single-number-prize' : 
+                                  isManyNumbers ? 'many-numbers' : 
+                                  isMediumNumbers ? 'medium-numbers' : '';
+                
+                return `
+                <div class="print-prize-section ${prizeClass}">
+                  ${isSingleNumber ? 
+                    `<div class="print-numbers-section">
+                       <div style="text-align: center;">
+                         <div style="font-size: 11px; font-weight: bold; margin-bottom: 2px;">
+                           ${prize.prize_type === '1st' ? '1st Prize' :
+                             prize.prize_type === '2nd' ? '2nd Prize' :
+                             prize.prize_type === '3rd' ? '3rd Prize' :
+                             prize.prize_type === 'consolation' ? 'Consolation Prize' :
+                             prize.prize_type.includes('സമാധാനം') ? 'Consolation Prize' :
+                             `${prize.prize_type} Prize`} - ₹${formatCurrency(prize.prize_amount)}/-
+                         </div>
+                         <div class="print-number-large">${ticketNumbers[0]}</div>
+                         ${prize.tickets && prize.tickets[0].location ? 
+                           `<div style="text-align: center; font-size: 9px; margin-top: 2px;">(${prize.tickets[0].location})</div>` : ''}
+                       </div>
+                     </div>` :
+                    `<div class="print-prize-header">
+                       <span class="print-prize-title">
+                         ${prize.prize_type === '1st' ? '1st Prize' :
+                           prize.prize_type === '2nd' ? '2nd Prize' :
+                           prize.prize_type === '3rd' ? '3rd Prize' :
+                           prize.prize_type === 'consolation' ? 'Consolation Prize' :
+                           prize.prize_type.includes('സമാധാനം') ? 'Consolation Prize' :
+                           `${prize.prize_type} Prize`}
+                       </span>
+                       <span class="print-prize-amount">
+                         ₹${formatCurrency(prize.prize_amount)}/-
+                       </span>
+                     </div>
+                     
+                     <div class="print-numbers-section">
+                       <div class="print-numbers-grid">
+                         ${ticketNumbers.map(num => `<div class="print-number">${num}</div>`).join('')}
+                       </div>
+                     </div>`
+                  }
+                </div>
+              `;}).join('') || ''}
+            </div>
+            
+            <div class="print-footer-text">
+              ഈ ഫലങ്ങൾ ഔദ്യോഗികമായി പ്രസിദ്ധീകരിച്ചതിനനുസരിച്ച് എഴുതിയതാണ്. പവിത്രമായ സംഖ്യകളുടെ സാധുതയും ശ്രദ്ധിക്കുക. സാക്ഷികളുടെ സാന്നിധ്യത്തിലാണ് സമ്മാനം നൽകുന്നത്. നിയമാനുസൃതമായ രേഖകളുണ്ടായിരിക്കണം. ഒറിജിനൽ ടിക്കറ്റ് 30 ദിവസത്തിനുള്ളിൽ ഹാജരാക്കണം.
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+      
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', { 
@@ -347,6 +620,182 @@ const KeralaLotteryApp = () => {
         ))
       )}
     </div>
+  );
+
+  const Footer = () => (
+    <footer style={{
+      backgroundColor: darkMode ? '#0D1117' : '#F8F9FA',
+      padding: '40px 20px',
+      marginTop: '40px',
+      borderTop: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
+    }}>
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto'
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+          gap: '30px',
+          marginBottom: '30px'
+        }}>
+          {/* About Section */}
+          <div>
+            <h3 style={{
+              color: darkMode ? '#FF5252' : '#D32F2F',
+              fontSize: '18px',
+              marginBottom: '16px',
+              fontWeight: 'bold'
+            }}>
+              Kerala Lottery Results
+            </h3>
+            <p style={{
+              color: darkMode ? '#BDBDBD' : '#666',
+              fontSize: '14px',
+              lineHeight: '1.6',
+              margin: '0'
+            }}>
+              Get the latest Kerala State Lottery results instantly. Check winning numbers for all Kerala lotteries including daily draws and bumper lotteries. Official Kerala Lottery results published by the Government of Kerala.
+            </p>
+          </div>
+
+          {/* Popular Lotteries */}
+          <div>
+            <h3 style={{
+              color: darkMode ? '#FF5252' : '#D32F2F',
+              fontSize: '18px',
+              marginBottom: '16px',
+              fontWeight: 'bold'
+            }}>
+              Popular Lotteries
+            </h3>
+            <div style={{
+              color: darkMode ? '#BDBDBD' : '#666',
+              fontSize: '14px',
+              lineHeight: '1.8'
+            }}>
+              <div>Win Win Lottery</div>
+              <div>Sthree Sakthi Lottery</div>
+              <div>Akshaya Lottery</div>
+              <div>Karunya Plus Lottery</div>
+              <div>Nirmal Lottery</div>
+              <div>Karunya Lottery</div>
+              <div>Pournami Lottery</div>
+            </div>
+          </div>
+
+          {/* Bumper Lotteries */}
+          <div>
+            <h3 style={{
+              color: darkMode ? '#FF5252' : '#D32F2F',
+              fontSize: '18px',
+              marginBottom: '16px',
+              fontWeight: 'bold'
+            }}>
+              Bumper Lotteries
+            </h3>
+            <div style={{
+              color: darkMode ? '#BDBDBD' : '#666',
+              fontSize: '14px',
+              lineHeight: '1.8'
+            }}>
+              <div>Onam Bumper</div>
+              <div>Christmas New Year Bumper</div>
+              <div>Vishu Bumper</div>
+              <div>Thiruvonam Bumper</div>
+              <div>Pooja Bumper</div>
+              <div>Summer Bumper</div>
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Keywords Section */}
+        <div style={{
+          backgroundColor: darkMode ? '#1A1A1A' : '#FFFFFF',
+          padding: '20px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
+        }}>
+          <h4 style={{
+            color: darkMode ? '#FF5252' : '#D32F2F',
+            fontSize: '16px',
+            marginBottom: '12px',
+            fontWeight: 'bold'
+          }}>
+            Kerala Lottery Information
+          </h4>
+          <div style={{
+            color: darkMode ? '#BDBDBD' : '#666',
+            fontSize: '13px',
+            lineHeight: '1.5'
+          }}>
+            Kerala Lottery Results Today Live | Kerala State Lottery Results | Daily Lottery Results | 
+            Lottery Draw Time | Prize Money Structure | Winning Numbers Check | Kerala Government Lottery | 
+            Official Lottery Results | First Prize Second Prize Third Prize | Consolation Prize | 
+            Agent Commission | Lottery Ticket Price | Draw Schedule | Result Publication | 
+            Prize Claim Process | Lucky Numbers | Lottery Winners | Today Result | 
+            Live Draw | Online Result Check | Mobile App | Fast Results
+          </div>
+        </div>
+
+        {/* Links */}
+        <div style={{
+          textAlign: 'center',
+          paddingTop: '20px',
+          borderTop: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
+          marginBottom: '16px'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '20px',
+            flexWrap: 'wrap',
+            marginBottom: '16px'
+          }}>
+            <a 
+              href="https://lotto-app-f3440.web.app/privacy-policy.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: darkMode ? '#FF5252' : '#D32F2F',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              Privacy Policy
+            </a>
+            <span style={{ color: darkMode ? '#424242' : '#E0E0E0' }}>|</span>
+            <a 
+              href="https://lotto-app-f3440.web.app/terms-conditions.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: darkMode ? '#FF5252' : '#D32F2F',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              Terms & Conditions
+            </a>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div style={{
+          textAlign: 'center',
+          color: darkMode ? '#BDBDBD' : '#666',
+          fontSize: '14px'
+        }}>
+          <p style={{ margin: '0' }}>
+            © 2025 LOTTO - Kerala Lottery Results. All results are for informational purposes only. 
+            Please verify with official Kerala State Lottery Department.
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 
   return (
@@ -603,24 +1052,47 @@ const KeralaLotteryApp = () => {
                     {resultData.lottery_name}
                   </h1>
                   
-                  {/* Download App Button */}
-                  <button
-                    onClick={() => {/* Add download logic here */}}
-                    style={{
-                      backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      marginLeft: '12px',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    Download App
-                  </button>
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
+                    {/* Print Button */}
+                    <button
+                      onClick={handlePrint}
+                      style={{
+                        backgroundColor: darkMode ? '#424242' : '#757575',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      🖨️ Print
+                    </button>
+                    
+                    {/* Download App Button */}
+                    <button
+                      onClick={() => {/* Add download logic here */}}
+                      style={{
+                        backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      Download App
+                    </button>
+                  </div>
                 </div>
                 
                 <div style={{
@@ -658,6 +1130,9 @@ const KeralaLotteryApp = () => {
           ) : null}
         </main>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Download App Popup */}
       {showDownloadPopup && (
