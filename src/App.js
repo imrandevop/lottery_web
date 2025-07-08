@@ -851,13 +851,6 @@ const KeralaLotteryApp = () => {
               }}>
                 LOTTO
               </h1>
-              <span style={{
-                color: darkMode ? '#BDBDBD' : '#666',
-                fontSize: isMobile ? '14px' : '16px',
-                fontWeight: 'normal'
-              }}>
-                Kerala Lottery Results
-              </span>
             </div>
           </div>
 
@@ -932,7 +925,7 @@ const KeralaLotteryApp = () => {
                   margin: '0',
                   fontWeight: 'bold'
                 }}>
-                  Recent Results
+                  Results
                 </h2>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
