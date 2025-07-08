@@ -562,14 +562,6 @@ const KeralaLotteryApp = () => {
 
   const LotteryList = ({ onItemClick, selectedId }) => (
     <div>
-      <h2 style={{
-        color: darkMode ? '#FF5252' : '#D32F2F',
-        fontSize: '18px',
-        marginBottom: '16px',
-        fontWeight: 'bold'
-      }}>
-        Recent Results
-      </h2>
       
       {listLoading ? (
         <div style={{
@@ -1036,64 +1028,14 @@ const KeralaLotteryApp = () => {
                 marginBottom: '20px',
                 boxShadow: darkMode ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.1)'
               }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  marginBottom: '8px'
+                <h1 style={{
+                  color: darkMode ? '#FF5252' : '#D32F2F',
+                  fontSize: isMobile ? '24px' : '28px',
+                  margin: '0 0 8px 0',
+                  fontWeight: 'bold'
                 }}>
-                  <h1 style={{
-                    color: darkMode ? '#FF5252' : '#D32F2F',
-                    fontSize: isMobile ? '24px' : '28px',
-                    margin: '0',
-                    fontWeight: 'bold',
-                    flex: 1
-                  }}>
-                    {resultData.lottery_name}
-                  </h1>
-                  
-                  {/* Action Buttons */}
-                  <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
-                    {/* Print Button */}
-                    <button
-                      onClick={handlePrint}
-                      style={{
-                        backgroundColor: darkMode ? '#424242' : '#757575',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      🖨️ Print
-                    </button>
-                    
-                    {/* Download App Button */}
-                    <button
-                      onClick={() => {/* Add download logic here */}}
-                      style={{
-                        backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '8px 12px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      Download App
-                    </button>
-                  </div>
-                </div>
+                  {resultData.lottery_name}
+                </h1>
                 
                 <div style={{
                   color: darkMode ? '#BDBDBD' : '#666',
@@ -1104,10 +1046,65 @@ const KeralaLotteryApp = () => {
                 </div>
                 <div style={{
                   color: darkMode ? '#BDBDBD' : '#666',
-                  fontSize: '16px'
+                  fontSize: '16px',
+                  marginBottom: '16px'
                 }}>
                   Date: {formatDate(resultData.date)}
                 </div>
+
+                {/* Action Buttons - Moved below draw number and date */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  marginBottom: '8px',
+                  flexWrap: 'wrap'
+                }}>
+                  {/* Print Button */}
+                  <button
+                    onClick={handlePrint}
+                    style={{
+                      backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      flex: isMobile ? '1' : 'none',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    🖨️ Print
+                  </button>
+                  
+                  {/* Download App Button */}
+                  <button
+                    onClick={() => {/* Add download logic here */}}
+                    style={{
+                      backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      flex: isMobile ? '1' : 'none',
+                      justifyContent: 'center',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    Download App
+                  </button>
+                </div>
+
                 {resultData.is_bumper && (
                   <div style={{
                     backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
@@ -1116,8 +1113,7 @@ const KeralaLotteryApp = () => {
                     borderRadius: '16px',
                     fontSize: '12px',
                     fontWeight: 'bold',
-                    display: 'inline-block',
-                    marginTop: '8px'
+                    display: 'inline-block'
                   }}>
                     BUMPER
                   </div>
