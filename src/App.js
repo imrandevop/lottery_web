@@ -414,7 +414,7 @@ const KeralaLotteryApp = () => {
               backgroundColor: darkMode ? '#1E1E1E' : 'white',
               borderRadius: '12px',
               marginBottom: '16px',
-              boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+              boxShadow: darkMode ? '0 4px 15px rgba(0,0,0,0.4)' : '0 4px 15px rgba(0,0,0,0.15)',
               overflow: 'hidden'
             }}
           >
@@ -588,7 +588,8 @@ const KeralaLotteryApp = () => {
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
+              border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
+              boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.2)' : '0 2px 8px rgba(0,0,0,0.08)'
             }}
           >
             <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
@@ -619,7 +620,8 @@ const KeralaLotteryApp = () => {
       backgroundColor: darkMode ? '#0D1117' : '#F8F9FA',
       padding: '40px 20px',
       marginTop: '40px',
-      borderTop: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
+      borderTop: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
+      boxShadow: darkMode ? '0 -4px 15px rgba(0,0,0,0.3)' : '0 -4px 15px rgba(0,0,0,0.1)'
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -707,7 +709,8 @@ const KeralaLotteryApp = () => {
           padding: '20px',
           borderRadius: '8px',
           marginBottom: '20px',
-          border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
+          border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
+          boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.2)' : '0 2px 8px rgba(0,0,0,0.08)'
         }}>
           <h4 style={{
             color: darkMode ? '#FF5252' : '#D32F2F',
@@ -793,408 +796,432 @@ const KeralaLotteryApp = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: darkMode ? '#121212' : '#FFF1F2',
-      color: darkMode ? '#E0E0E0' : '#333',
+      backgroundColor: darkMode ? '#0A0A0A' : '#E8E8E8',
+      padding: '10px',
       fontFamily: 'Arial, sans-serif',
       transition: 'all 0.3s ease'
     }}>
-      {/* SEO Meta Tags - Hidden */}
-      <div style={{ display: 'none' }}>
-        Kerala Lottery Results Today Live, LOTTO, Lottery Results Kerala, 
-        Kerala State Lottery, Win Win Lottery, Akshaya Lottery, Sthree Sakthi Lottery,
-        Karunya Lottery, Nirmal Lottery, Pournami Lottery, Kerala Government Lottery,
-        Lottery Result Check, Prize Money, Winning Numbers, Daily Lottery Results,
-        Kerala Lottery Draw, Bumper Lottery, Thiruvonam Bumper, Christmas Bumper,
-        Onam Bumper, Vishu Bumper, Kerala Lottery Official, State Lottery Results
-      </div>
-
-      {/* Header */}
-      <header style={{
-        backgroundColor: darkMode ? '#121212' : '#FFF1F2',
-        padding: '16px 20px',
-        borderBottom: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
-        position: 'sticky',
-        top: 0,
-        zIndex: 100
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {/* Mobile Menu Button */}
-            {isMobile && (
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: darkMode ? '#E0E0E0' : '#333',
-                  fontSize: '24px',
-                  marginRight: '16px',
-                  cursor: 'pointer'
-                }}
-              >
-                ☰
-              </button>
-            )}
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <h1 style={{
-                color: darkMode ? '#FF5252' : '#D32F2F',
-                margin: '0',
-                fontSize: isMobile ? '18px' : '22px',
-                fontWeight: 'bold'
-              }}>
-                LOTTO
-              </h1>
-            </div>
-          </div>
-
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            style={{
-              backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-              color: 'white',
-              border: 'none',
-              borderRadius: '16px',
-              padding: '6px 12px',
-              cursor: 'pointer',
-              fontSize: '12px',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-        </div>
-      </header>
-
       <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'flex',
-        minHeight: 'calc(100vh - 80px)'
+        minHeight: 'calc(100vh - 20px)',
+        backgroundColor: darkMode ? '#121212' : '#FFF1F2',
+        color: darkMode ? '#E0E0E0' : '#333',
+        borderRadius: '12px',
+        boxShadow: darkMode ? '0 8px 32px rgba(0,0,0,0.6)' : '0 8px 32px rgba(0,0,0,0.15)',
+        overflow: 'hidden'
       }}>
-        {/* Desktop Sidebar */}
-        {!isMobile && (
-          <aside style={{
-            width: '320px',
-            backgroundColor: darkMode ? '#1E1E1E' : 'white',
-            padding: '20px',
-            borderRight: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
-            overflowY: 'auto'
-          }}>
-            <LotteryList 
-              onItemClick={handleLotterySelect} 
-              selectedId={selectedLottery?.unique_id} 
-            />
-          </aside>
-        )}
+        {/* SEO Meta Tags - Hidden */}
+        <div style={{ display: 'none' }}>
+          Kerala Lottery Results Today Live, LOTTO, Lottery Results Kerala, 
+          Kerala State Lottery, Win Win Lottery, Akshaya Lottery, Sthree Sakthi Lottery,
+          Karunya Lottery, Nirmal Lottery, Pournami Lottery, Kerala Government Lottery,
+          Lottery Result Check, Prize Money, Winning Numbers, Daily Lottery Results,
+          Kerala Lottery Draw, Bumper Lottery, Thiruvonam Bumper, Christmas Bumper,
+          Onam Bumper, Vishu Bumper, Kerala Lottery Official, State Lottery Results
+        </div>
 
-        {/* Mobile Menu Overlay */}
-        {isMobile && mobileMenuOpen && (
+        {/* Header */}
+        <header style={{
+          backgroundColor: darkMode ? '#121212' : '#FFF1F2',
+          padding: '16px 20px',
+          borderBottom: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
           <div style={{
-            position: 'fixed',
-            top: '0',
-            left: '0',
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 200
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            maxWidth: '1200px',
+            margin: '0 auto'
           }}>
-            <div style={{
-              width: '300px',
-              height: '100%',
-              backgroundColor: darkMode ? '#1E1E1E' : 'white',
-              padding: '20px',
-              overflowY: 'auto'
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '20px'
-              }}>
-                <h2 style={{
-                  color: darkMode ? '#FF5252' : '#D32F2F',
-                  fontSize: '18px',
-                  margin: '0',
-                  fontWeight: 'bold'
-                }}>
-                  Results
-                </h2>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {/* Mobile Menu Button */}
+              {isMobile && (
                 <button
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                   style={{
                     background: 'none',
                     border: 'none',
                     color: darkMode ? '#E0E0E0' : '#333',
                     fontSize: '24px',
+                    marginRight: '16px',
                     cursor: 'pointer'
                   }}
                 >
-                  ×
+                  ☰
                 </button>
-              </div>
+              )}
               
-              <LotteryList 
-                onItemClick={handleLotterySelect} 
-                selectedId={selectedLottery?.unique_id} 
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <h1 style={{
+                  color: darkMode ? '#FF5252' : '#D32F2F',
+                  margin: '0',
+                  fontSize: isMobile ? '18px' : '22px',
+                  fontWeight: 'bold'
+                }}>
+                  LOTTO
+                </h1>
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Main Content */}
-        <main style={{
-          flex: 1,
-          padding: '20px',
-          overflow: 'auto'
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              style={{
+                backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                color: 'white',
+                border: 'none',
+                borderRadius: '16px',
+                padding: '6px 12px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                transition: 'all 0.3s ease',
+                boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+              }}
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+          </div>
+        </header>
+
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'flex',
+          minHeight: 'calc(100vh - 100px)'
         }}>
-          {!selectedLottery ? (
-            <div style={{
-              textAlign: 'center',
-              marginTop: '40px'
+          {/* Desktop Sidebar */}
+          {!isMobile && (
+            <aside style={{
+              width: '320px',
+              backgroundColor: darkMode ? '#1E1E1E' : 'white',
+              marginTop: '10px',
+              marginLeft: '10px',
+              marginRight: '10px',
+              borderRadius: '8px',
+              boxShadow: darkMode ? '0 4px 15px rgba(0,0,0,0.4)' : '0 4px 15px rgba(0,0,0,0.15)',
+              overflowY: 'auto',
+              height: 'fit-content'
             }}>
-              <h2 style={{
-                color: darkMode ? '#E0E0E0' : '#666',
-                fontSize: '24px',
-                marginBottom: '16px'
-              }}>
-                Select a Lottery
-              </h2>
-              <p style={{
-                color: darkMode ? '#BDBDBD' : '#888',
-                fontSize: '16px'
-              }}>
-                {isMobile ? 'Tap the menu button to select a lottery' : 'Choose a lottery from the sidebar to view results'}
-              </p>
-            </div>
-          ) : loading ? (
+              <div style={{ padding: '20px' }}>
+                <LotteryList 
+                  onItemClick={handleLotterySelect} 
+                  selectedId={selectedLottery?.unique_id} 
+                />
+              </div>
+            </aside>
+          )}
+
+          {/* Mobile Menu Overlay */}
+          {isMobile && mobileMenuOpen && (
             <div style={{
-              textAlign: 'center',
-              marginTop: '40px'
+              position: 'fixed',
+              top: '0',
+              left: '0',
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              zIndex: 200
             }}>
               <div style={{
-                color: darkMode ? '#FF5252' : '#D32F2F',
-                fontSize: '18px'
+                width: '300px',
+                height: '100%',
+                backgroundColor: darkMode ? '#1E1E1E' : 'white',
+                padding: '20px',
+                overflowY: 'auto',
+                boxShadow: darkMode ? '4px 0 15px rgba(0,0,0,0.4)' : '4px 0 15px rgba(0,0,0,0.15)'
               }}>
-                Loading result...
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <h2 style={{
+                    color: darkMode ? '#FF5252' : '#D32F2F',
+                    fontSize: '18px',
+                    margin: '0',
+                    fontWeight: 'bold'
+                  }}>
+                    Results
+                  </h2>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: darkMode ? '#E0E0E0' : '#333',
+                      fontSize: '24px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <LotteryList 
+                  onItemClick={handleLotterySelect} 
+                  selectedId={selectedLottery?.unique_id} 
+                />
               </div>
             </div>
-          ) : error ? (
+          )}
+
+          {/* Main Content */}
+          <main style={{
+            flex: 1,
+            padding: '20px',
+            overflow: 'auto'
+          }}>
+            {!selectedLottery ? (
+              <div style={{
+                textAlign: 'center',
+                marginTop: '40px'
+              }}>
+                <h2 style={{
+                  color: darkMode ? '#E0E0E0' : '#666',
+                  fontSize: '24px',
+                  marginBottom: '16px'
+                }}>
+                  Select a Lottery
+                </h2>
+                <p style={{
+                  color: darkMode ? '#BDBDBD' : '#888',
+                  fontSize: '16px'
+                }}>
+                  {isMobile ? 'Tap the menu button to select a lottery' : 'Choose a lottery from the sidebar to view results'}
+                </p>
+              </div>
+            ) : loading ? (
+              <div style={{
+                textAlign: 'center',
+                marginTop: '40px'
+              }}>
+                <div style={{
+                  color: darkMode ? '#FF5252' : '#D32F2F',
+                  fontSize: '18px'
+                }}>
+                  Loading result...
+                </div>
+              </div>
+            ) : error ? (
+              <div style={{
+                textAlign: 'center',
+                marginTop: '40px',
+                color: '#f44336',
+                fontSize: '16px'
+              }}>
+                {error}
+                <div style={{ marginTop: '16px' }}>
+                  <button
+                    onClick={() => fetchLotteryResult(selectedLottery?.unique_id)}
+                    style={{
+                      backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '10px 20px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                    }}
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            ) : resultData ? (
+              <div>
+                {/* Result Header */}
+                <div style={{
+                  backgroundColor: darkMode ? '#1E1E1E' : 'white',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  marginBottom: '20px',
+                  boxShadow: darkMode ? '0 6px 20px rgba(0,0,0,0.4)' : '0 6px 20px rgba(0,0,0,0.15)'
+                }}>
+                  <h1 style={{
+                    color: darkMode ? '#FF5252' : '#D32F2F',
+                    fontSize: isMobile ? '24px' : '28px',
+                    margin: '0 0 8px 0',
+                    fontWeight: 'bold'
+                  }}>
+                    {resultData.lottery_name}
+                  </h1>
+                  
+                  <div style={{
+                    color: darkMode ? '#BDBDBD' : '#666',
+                    fontSize: '16px',
+                    marginBottom: '4px'
+                  }}>
+                    Draw Number: {resultData.draw_number}
+                  </div>
+                  <div style={{
+                    color: darkMode ? '#BDBDBD' : '#666',
+                    fontSize: '16px',
+                    marginBottom: '16px'
+                  }}>
+                    Date: {formatDate(resultData.date)}
+                  </div>
+
+                  {/* Action Buttons - Moved below draw number and date */}
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '8px', 
+                    marginBottom: '8px',
+                    flexWrap: 'wrap'
+                  }}>
+                    {/* Print Button */}
+                    <button
+                      onClick={handlePrint}
+                      style={{
+                        backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        flex: isMobile ? '1' : 'none',
+                        justifyContent: 'center',
+                        boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                      }}
+                    >
+                      🖨️ Print
+                    </button>
+                    
+                    {/* Download App Button */}
+                    <button
+                      onClick={() => {/* Add download logic here */}}
+                      style={{
+                        backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flex: isMobile ? '1' : 'none',
+                        justifyContent: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                        boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                      }}
+                    >
+                      Download App
+                    </button>
+                  </div>
+
+                  {resultData.is_bumper && (
+                    <div style={{
+                      backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                      color: 'white',
+                      padding: '4px 12px',
+                      borderRadius: '16px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      display: 'inline-block',
+                      boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                    }}>
+                      BUMPER
+                    </div>
+                  )}
+                </div>
+
+                {/* Prize Results */}
+                {renderPrizeResults()}
+              </div>
+            ) : null}
+          </main>
+        </div>
+
+        {/* Footer */}
+        <Footer />
+
+        {/* Download App Popup */}
+        {showDownloadPopup && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
+          }}>
             <div style={{
+              backgroundColor: darkMode ? '#1E1E1E' : 'white',
+              padding: '30px',
+              borderRadius: '12px',
               textAlign: 'center',
-              marginTop: '40px',
-              color: '#f44336',
-              fontSize: '16px'
+              maxWidth: '300px',
+              margin: '20px',
+              boxShadow: darkMode ? '0 8px 32px rgba(0,0,0,0.6)' : '0 8px 32px rgba(0,0,0,0.3)'
             }}>
-              {error}
-              <div style={{ marginTop: '16px' }}>
+              <h3 style={{
+                color: darkMode ? '#FF5252' : '#D32F2F',
+                margin: '0 0 16px 0',
+                fontSize: '20px',
+                fontWeight: 'bold'
+              }}>
+                Get Our App!
+              </h3>
+              <p style={{
+                color: darkMode ? '#E0E0E0' : '#333',
+                margin: '0 0 20px 0',
+                fontSize: '16px'
+              }}>
+                Download our app for faster results and notifications
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                 <button
-                  onClick={() => fetchLotteryResult(selectedLottery?.unique_id)}
+                  onClick={() => {/* Add download logic here */}}
                   style={{
                     backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
-                    padding: '10px 20px',
+                    padding: '12px 20px',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
                     cursor: 'pointer',
-                    fontSize: '14px'
+                    boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
                   }}
                 >
-                  Try Again
+                  Download App
+                </button>
+                <button
+                  onClick={() => setShowDownloadPopup(false)}
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: darkMode ? '#BDBDBD' : '#666',
+                    border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
+                    borderRadius: '8px',
+                    padding: '12px 20px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.2)' : '0 2px 8px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  Later
                 </button>
               </div>
             </div>
-          ) : resultData ? (
-            <div>
-              {/* Result Header */}
-              <div style={{
-                backgroundColor: darkMode ? '#1E1E1E' : 'white',
-                padding: '20px',
-                borderRadius: '12px',
-                marginBottom: '20px',
-                boxShadow: darkMode ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.1)'
-              }}>
-                <h1 style={{
-                  color: darkMode ? '#FF5252' : '#D32F2F',
-                  fontSize: isMobile ? '24px' : '28px',
-                  margin: '0 0 8px 0',
-                  fontWeight: 'bold'
-                }}>
-                  {resultData.lottery_name}
-                </h1>
-                
-                <div style={{
-                  color: darkMode ? '#BDBDBD' : '#666',
-                  fontSize: '16px',
-                  marginBottom: '4px'
-                }}>
-                  Draw Number: {resultData.draw_number}
-                </div>
-                <div style={{
-                  color: darkMode ? '#BDBDBD' : '#666',
-                  fontSize: '16px',
-                  marginBottom: '16px'
-                }}>
-                  Date: {formatDate(resultData.date)}
-                </div>
-
-                {/* Action Buttons - Moved below draw number and date */}
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '8px', 
-                  marginBottom: '8px',
-                  flexWrap: 'wrap'
-                }}>
-                  {/* Print Button */}
-                  <button
-                    onClick={handlePrint}
-                    style={{
-                      backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      flex: isMobile ? '1' : 'none',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    🖨️ Print
-                  </button>
-                  
-                  {/* Download App Button */}
-                  <button
-                    onClick={() => {/* Add download logic here */}}
-                    style={{
-                      backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      flex: isMobile ? '1' : 'none',
-                      justifyContent: 'center',
-                      display: 'flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    Download App
-                  </button>
-                </div>
-
-                {resultData.is_bumper && (
-                  <div style={{
-                    backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-                    color: 'white',
-                    padding: '4px 12px',
-                    borderRadius: '16px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    display: 'inline-block'
-                  }}>
-                    BUMPER
-                  </div>
-                )}
-              </div>
-
-              {/* Prize Results */}
-              {renderPrizeResults()}
-            </div>
-          ) : null}
-        </main>
-      </div>
-
-      {/* Footer */}
-      <Footer />
-
-      {/* Download App Popup */}
-      {showDownloadPopup && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: darkMode ? '#1E1E1E' : 'white',
-            padding: '30px',
-            borderRadius: '12px',
-            textAlign: 'center',
-            maxWidth: '300px',
-            margin: '20px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
-          }}>
-            <h3 style={{
-              color: darkMode ? '#FF5252' : '#D32F2F',
-              margin: '0 0 16px 0',
-              fontSize: '20px',
-              fontWeight: 'bold'
-            }}>
-              Get Our App!
-            </h3>
-            <p style={{
-              color: darkMode ? '#E0E0E0' : '#333',
-              margin: '0 0 20px 0',
-              fontSize: '16px'
-            }}>
-              Download our app for faster results and notifications
-            </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button
-                onClick={() => {/* Add download logic here */}}
-                style={{
-                  backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 20px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                Download App
-              </button>
-              <button
-                onClick={() => setShowDownloadPopup(false)}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: darkMode ? '#BDBDBD' : '#666',
-                  border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
-                  borderRadius: '8px',
-                  padding: '12px 20px',
-                  fontSize: '14px',
-                  cursor: 'pointer'
-                }}
-              >
-                Later
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
