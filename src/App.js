@@ -414,7 +414,6 @@ const KeralaLotteryApp = () => {
               backgroundColor: darkMode ? '#1E1E1E' : 'white',
               borderRadius: '12px',
               marginBottom: '16px',
-              boxShadow: darkMode ? '0 4px 15px rgba(0,0,0,0.4)' : '0 4px 15px rgba(0,0,0,0.15)',
               overflow: 'hidden'
             }}
           >
@@ -588,8 +587,7 @@ const KeralaLotteryApp = () => {
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
-              boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.2)' : '0 2px 8px rgba(0,0,0,0.08)'
+              border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
             }}
           >
             <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
@@ -620,8 +618,7 @@ const KeralaLotteryApp = () => {
       backgroundColor: darkMode ? '#0D1117' : '#F8F9FA',
       padding: '40px 20px',
       marginTop: '40px',
-      borderTop: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
-      boxShadow: darkMode ? '0 -4px 15px rgba(0,0,0,0.3)' : '0 -4px 15px rgba(0,0,0,0.1)'
+      borderTop: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -709,8 +706,7 @@ const KeralaLotteryApp = () => {
           padding: '20px',
           borderRadius: '8px',
           marginBottom: '20px',
-          border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
-          boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.2)' : '0 2px 8px rgba(0,0,0,0.08)'
+          border: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`
         }}>
           <h4 style={{
             color: darkMode ? '#FF5252' : '#D32F2F',
@@ -806,7 +802,6 @@ const KeralaLotteryApp = () => {
         backgroundColor: darkMode ? '#121212' : '#FFF1F2',
         color: darkMode ? '#E0E0E0' : '#333',
         borderRadius: '12px',
-        boxShadow: darkMode ? '0 8px 32px rgba(0,0,0,0.6)' : '0 8px 32px rgba(0,0,0,0.15)',
         overflow: 'hidden'
       }}>
         {/* SEO Meta Tags - Hidden */}
@@ -826,8 +821,7 @@ const KeralaLotteryApp = () => {
           borderBottom: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
           position: 'sticky',
           top: 0,
-          zIndex: 100,
-          boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
+          zIndex: 100
         }}>
           <div style={{
             display: 'flex',
@@ -877,8 +871,7 @@ const KeralaLotteryApp = () => {
                 padding: '6px 12px',
                 cursor: 'pointer',
                 fontSize: '12px',
-                transition: 'all 0.3s ease',
-                boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                transition: 'all 0.3s ease'
               }}
             >
               {darkMode ? '☀️' : '🌙'}
@@ -901,7 +894,6 @@ const KeralaLotteryApp = () => {
               marginLeft: '10px',
               marginRight: '10px',
               borderRadius: '8px',
-              boxShadow: darkMode ? '0 4px 15px rgba(0,0,0,0.4)' : '0 4px 15px rgba(0,0,0,0.15)',
               overflowY: 'auto',
               height: 'fit-content'
             }}>
@@ -930,8 +922,7 @@ const KeralaLotteryApp = () => {
                 height: '100%',
                 backgroundColor: darkMode ? '#1E1E1E' : 'white',
                 padding: '20px',
-                overflowY: 'auto',
-                boxShadow: darkMode ? '4px 0 15px rgba(0,0,0,0.4)' : '4px 0 15px rgba(0,0,0,0.15)'
+                overflowY: 'auto'
               }}>
                 <div style={{
                   display: 'flex',
@@ -1024,8 +1015,7 @@ const KeralaLotteryApp = () => {
                       borderRadius: '8px',
                       padding: '10px 20px',
                       cursor: 'pointer',
-                      fontSize: '14px',
-                      boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                      fontSize: '14px'
                     }}
                   >
                     Try Again
@@ -1039,8 +1029,7 @@ const KeralaLotteryApp = () => {
                   backgroundColor: darkMode ? '#1E1E1E' : 'white',
                   padding: '20px',
                   borderRadius: '12px',
-                  marginBottom: '20px',
-                  boxShadow: darkMode ? '0 6px 20px rgba(0,0,0,0.4)' : '0 6px 20px rgba(0,0,0,0.15)'
+                  marginBottom: '20px'
                 }}>
                   <h1 style={{
                     color: darkMode ? '#FF5252' : '#D32F2F',
@@ -1090,8 +1079,7 @@ const KeralaLotteryApp = () => {
                         alignItems: 'center',
                         gap: '4px',
                         flex: isMobile ? '1' : 'none',
-                        justifyContent: 'center',
-                        boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                        justifyContent: 'center'
                       }}
                     >
                       🖨️ Print
@@ -1113,8 +1101,7 @@ const KeralaLotteryApp = () => {
                         flex: isMobile ? '1' : 'none',
                         justifyContent: 'center',
                         display: 'flex',
-                        alignItems: 'center',
-                        boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                        alignItems: 'center'
                       }}
                     >
                       Download App
@@ -1129,8 +1116,7 @@ const KeralaLotteryApp = () => {
                       borderRadius: '16px',
                       fontSize: '12px',
                       fontWeight: 'bold',
-                      display: 'inline-block',
-                      boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                      display: 'inline-block'
                     }}>
                       BUMPER
                     </div>
@@ -1167,8 +1153,7 @@ const KeralaLotteryApp = () => {
               borderRadius: '12px',
               textAlign: 'center',
               maxWidth: '300px',
-              margin: '20px',
-              boxShadow: darkMode ? '0 8px 32px rgba(0,0,0,0.6)' : '0 8px 32px rgba(0,0,0,0.3)'
+              margin: '20px'
             }}>
               <h3 style={{
                 color: darkMode ? '#FF5252' : '#D32F2F',
@@ -1196,8 +1181,7 @@ const KeralaLotteryApp = () => {
                     padding: '12px 20px',
                     fontSize: '14px',
                     fontWeight: 'bold',
-                    cursor: 'pointer',
-                    boxShadow: darkMode ? '0 2px 8px rgba(255,82,82,0.3)' : '0 2px 8px rgba(211,47,47,0.3)'
+                    cursor: 'pointer'
                   }}
                 >
                   Download App
@@ -1211,8 +1195,7 @@ const KeralaLotteryApp = () => {
                     borderRadius: '8px',
                     padding: '12px 20px',
                     fontSize: '14px',
-                    cursor: 'pointer',
-                    boxShadow: darkMode ? '0 2px 8px rgba(0,0,0,0.2)' : '0 2px 8px rgba(0,0,0,0.1)'
+                    cursor: 'pointer'
                   }}
                 >
                   Later
