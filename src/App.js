@@ -115,24 +115,7 @@ const KeralaLotteryApp = () => {
     fetchLotteryResult(lottery.unique_id);
   };
 
-  // Fixed print function for mobile compatibility with PDF generation
-  const handlePrint = () => {
-    if (!resultData) return;
-
-    // Check if mobile
-    const userAgent = navigator.userAgent.toLowerCase();
-    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent);
-    
-    if (isMobileDevice) {
-      // For mobile devices, generate PDF directly
-      handleMobilePDFGeneration();
-    } else {
-      // Desktop print functionality
-      handleDesktopPrint();
-    }
-  };
-
-  // Load jsPDF library dynamically
+  // Load jsPDF library dynamically with multiple CDN fallbacks
   const loadJsPDF = () => {
     return new Promise((resolve, reject) => {
       if (window.jsPDF) {
@@ -140,23 +123,51 @@ const KeralaLotteryApp = () => {
         return;
       }
       
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      script.onload = () => {
-        resolve();
+      const cdnUrls = [
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+        'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js',
+        'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
+      ];
+      
+      let attemptIndex = 0;
+      
+      const tryLoad = () => {
+        if (attemptIndex >= cdnUrls.length) {
+          reject(new Error('Failed to load jsPDF from all CDNs'));
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = cdnUrls[attemptIndex];
+        script.onload = () => {
+          if (window.jsPDF) {
+            resolve();
+          } else {
+            attemptIndex++;
+            tryLoad();
+          }
+        };
+        script.onerror = () => {
+          attemptIndex++;
+          tryLoad();
+        };
+        document.head.appendChild(script);
       };
-      script.onerror = () => {
-        reject(new Error('Failed to load jsPDF library'));
-      };
-      document.head.appendChild(script);
+      
+      tryLoad();
     });
   };
 
   const handleMobilePDFGeneration = async () => {
     try {
+      // Show loading state
+      setLoading(true);
+      
       // Load jsPDF from CDN using script tag
+      await loadJsPDF();
+      
       if (!window.jsPDF) {
-        await loadJsPDF();
+        throw new Error('jsPDF library not available');
       }
       
       const { jsPDF } = window;
@@ -339,9 +350,48 @@ const KeralaLotteryApp = () => {
 
     } catch (error) {
       console.error('PDF generation failed:', error);
-      // Show error message
-      setError('Unable to generate PDF. Please try again or use a different browser.');
-      setTimeout(() => setError(''), 3000); // Clear error after 3 seconds
+      // Fallback to HTML download for mobile
+      handleMobileHTMLFallback();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback method for mobile when PDF fails
+  const handleMobileHTMLFallback = () => {
+    try {
+      const printContent = createPrintContent();
+      const blob = new Blob([printContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${resultData.lottery_name.replace(/[^a-z0-9]/gi, '_')}_${formatDate(resultData.date).replace(/[^a-z0-9]/gi, '_')}.html`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      // Show message that HTML was downloaded instead
+      setError('PDF generation not supported. Downloaded as HTML file instead.');
+      setTimeout(() => setError(''), 5000);
+    } catch (fallbackError) {
+      setError('Unable to download file. Please try a different browser.');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
+  // Fixed print function for mobile compatibility with PDF generation
+  const handlePrint = () => {
+    if (!resultData) return;
+
+    // Check if mobile
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent);
+    
+    if (isMobileDevice) {
+      // For mobile devices, generate PDF directly
+      handleMobilePDFGeneration();
+    } else {
+      // Desktop print functionality
+      handleDesktopPrint();
     }
   };
 
@@ -535,7 +585,6 @@ const KeralaLotteryApp = () => {
           }
         }
         
-        /* Mobile specific styles */
         @media screen and (max-width: 768px) {
           body {
             font-size: 14px !important;
@@ -1139,7 +1188,7 @@ const KeralaLotteryApp = () => {
             <aside style={{
               width: '320px',
               backgroundColor: darkMode ? '#1E1E1E' : 'white',
-              marginTop: '20px', // Fixed: Same as main content
+              marginTop: '20px',
               marginLeft: '10px',
               marginRight: '10px',
               borderRadius: '8px',
@@ -1213,7 +1262,7 @@ const KeralaLotteryApp = () => {
           <main style={{
             flex: 1,
             padding: '20px',
-            paddingTop: '20px', // Fixed: Consistent with sidebar
+            paddingTop: '20px',
             overflow: 'auto'
           }}>
             {!selectedLottery ? (
