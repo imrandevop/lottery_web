@@ -132,11 +132,34 @@ const KeralaLotteryApp = () => {
     }
   };
 
+  // Load jsPDF library dynamically
+  const loadJsPDF = () => {
+    return new Promise((resolve, reject) => {
+      if (window.jsPDF) {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.onload = () => {
+        resolve();
+      };
+      script.onerror = () => {
+        reject(new Error('Failed to load jsPDF library'));
+      };
+      document.head.appendChild(script);
+    });
+  };
+
   const handleMobilePDFGeneration = async () => {
     try {
-      // Import jsPDF dynamically
-      const jsPDFModule = await import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-      const { jsPDF } = jsPDFModule;
+      // Load jsPDF from CDN using script tag
+      if (!window.jsPDF) {
+        await loadJsPDF();
+      }
+      
+      const { jsPDF } = window;
 
       // Create new PDF document
       const doc = new jsPDF({
@@ -317,7 +340,8 @@ const KeralaLotteryApp = () => {
     } catch (error) {
       console.error('PDF generation failed:', error);
       // Show error message
-      alert('Unable to generate PDF. Please try again or use a different browser.');
+      setError('Unable to generate PDF. Please try again or use a different browser.');
+      setTimeout(() => setError(''), 3000); // Clear error after 3 seconds
     }
   };
 
@@ -339,7 +363,8 @@ const KeralaLotteryApp = () => {
         printWindow.close();
       }, 500);
     } else {
-      alert('Please allow popups to print the lottery results.');
+      setError('Please allow popups to print the lottery results.');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
