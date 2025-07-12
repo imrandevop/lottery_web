@@ -115,36 +115,107 @@ const KeralaLotteryApp = () => {
     fetchLotteryResult(lottery.unique_id);
   };
 
-  // Load jsPDF library dynamically with better error handling
+  // More robust jsPDF loading with multiple CDN sources and better compatibility
   const loadJsPDF = () => {
     return new Promise((resolve, reject) => {
-      // Check if jsPDF is already loaded
-      if (window.jsPDF) {
+      // Check if jsPDF is already available
+      if (window.jsPDF && typeof window.jsPDF === 'function') {
+        console.log('jsPDF already loaded');
         resolve(window.jsPDF);
         return;
       }
-      
-      // Try loading from CDN
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-      script.async = true;
-      
-      script.onload = () => {
-        // Wait a bit for the library to initialize
-        setTimeout(() => {
-          if (window.jsPDF) {
-            resolve(window.jsPDF);
-          } else {
-            reject(new Error('jsPDF not available after loading'));
-          }
-        }, 100);
+
+      // Clear any existing jsPDF scripts
+      const existingScripts = document.querySelectorAll('script[src*="jspdf"]');
+      existingScripts.forEach(script => script.remove());
+
+      // Multiple CDN sources for better reliability
+      const cdnSources = [
+        'https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+        'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
+      ];
+
+      let currentCdnIndex = 0;
+
+      const tryLoadFromCdn = () => {
+        if (currentCdnIndex >= cdnSources.length) {
+          reject(new Error('All CDN sources failed to load jsPDF'));
+          return;
+        }
+
+        console.log(`Trying to load jsPDF from CDN ${currentCdnIndex + 1}:`, cdnSources[currentCdnIndex]);
+
+        const script = document.createElement('script');
+        script.src = cdnSources[currentCdnIndex];
+        script.type = 'text/javascript';
+        script.async = false;
+        script.defer = false;
+
+        script.onload = () => {
+          console.log(`Script loaded from CDN ${currentCdnIndex + 1}, checking for jsPDF...`);
+          
+          // Wait for the library to initialize properly
+          let checkAttempts = 0;
+          const maxChecks = 20;
+          
+          const checkForjsPDF = () => {
+            checkAttempts++;
+            console.log(`Check attempt ${checkAttempts} for jsPDF availability`);
+
+            let jsPDFConstructor = null;
+
+            // Try multiple ways to access jsPDF
+            if (typeof window.jsPDF === 'function') {
+              jsPDFConstructor = window.jsPDF;
+              console.log('Found jsPDF at window.jsPDF');
+            } else if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
+              jsPDFConstructor = window.jspdf.jsPDF;
+              console.log('Found jsPDF at window.jspdf.jsPDF');
+            } else if (window.jsPDF && typeof window.jsPDF.jsPDF === 'function') {
+              jsPDFConstructor = window.jsPDF.jsPDF;
+              console.log('Found jsPDF at window.jsPDF.jsPDF');
+            }
+
+            if (jsPDFConstructor) {
+              // Test if we can actually create a document
+              try {
+                const testDoc = new jsPDFConstructor();
+                if (testDoc && typeof testDoc.save === 'function') {
+                  console.log('jsPDF is working correctly!');
+                  resolve(jsPDFConstructor);
+                  return;
+                }
+              } catch (testError) {
+                console.log('jsPDF constructor test failed:', testError);
+              }
+            }
+
+            if (checkAttempts < maxChecks) {
+              setTimeout(checkForjsPDF, 300);
+            } else {
+              console.log(`jsPDF not found after ${maxChecks} attempts, trying next CDN`);
+              currentCdnIndex++;
+              script.remove();
+              tryLoadFromCdn();
+            }
+          };
+
+          // Start checking immediately
+          checkForjsPDF();
+        };
+
+        script.onerror = () => {
+          console.log(`Failed to load from CDN ${currentCdnIndex + 1}, trying next...`);
+          currentCdnIndex++;
+          script.remove();
+          tryLoadFromCdn();
+        };
+
+        document.head.appendChild(script);
       };
-      
-      script.onerror = () => {
-        reject(new Error('Failed to load jsPDF'));
-      };
-      
-      document.head.appendChild(script);
+
+      tryLoadFromCdn();
     });
   };
 
@@ -153,51 +224,59 @@ const KeralaLotteryApp = () => {
     setError('');
     
     try {
-      console.log('Starting PDF generation...');
+      console.log('=== Starting PDF Generation ===');
       
-      // Load jsPDF library
-      const jsPDF = await loadJsPDF();
-      console.log('jsPDF loaded successfully:', !!jsPDF);
+      // Show progress to user
+      setError('Loading PDF library...');
       
-      if (!jsPDF) {
-        throw new Error('jsPDF library is not available');
-      }
-
-      // Create new PDF document
-      const doc = new jsPDF({
+      // Load jsPDF library with enhanced error handling
+      const jsPDFConstructor = await loadJsPDF();
+      
+      setError('Creating PDF document...');
+      console.log('jsPDF constructor ready, creating document...');
+      
+      // Create PDF document with exact same settings as desktop
+      const doc = new jsPDFConstructor({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
 
-      console.log('PDF document created');
+      console.log('PDF document created successfully');
+      setError('Generating content...');
 
-      // Page setup
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 5;
+      // Get exact page dimensions (same as desktop)
+      const pageWidth = doc.internal.pageSize.getWidth(); // 210mm for A4
+      const pageHeight = doc.internal.pageSize.getHeight(); // 297mm for A4
+      const margin = 4; // Same margin as desktop print
 
-      // Draw main border
+      console.log(`Page size: ${pageWidth}mm x ${pageHeight}mm`);
+
+      // === EXACT DESKTOP STRUCTURE ===
+
+      // Main border (same as desktop)
       doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(1);
       doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
 
-      // Header background
+      // Header section background (same as desktop)
       doc.setFillColor(224, 224, 224);
-      doc.rect(margin + 1, margin + 1, pageWidth - 2 * margin - 2, 12, 'F');
+      const headerHeight = 12;
+      doc.rect(margin + 1, margin + 1, pageWidth - 2 * margin - 2, headerHeight, 'F');
       doc.setDrawColor(0, 0, 0);
-      doc.rect(margin + 1, margin + 1, pageWidth - 2 * margin - 2, 12);
+      doc.setLineWidth(1);
+      doc.rect(margin + 1, margin + 1, pageWidth - 2 * margin - 2, headerHeight);
 
-      // Header text
+      // Header text (same positioning as desktop)
       doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
       
       // Left: Draw number
+      doc.setFontSize(10);
       const drawNumber = resultData.draw_number || 'SK-XX';
       doc.text(drawNumber, margin + 3, margin + 8);
       
-      // Center: Lottery name
+      // Center: Lottery name  
       doc.setFontSize(12);
       const lotteryName = resultData.lottery_name || 'Kerala Lottery';
       const nameWidth = doc.getTextWidth(lotteryName);
@@ -209,175 +288,188 @@ const KeralaLotteryApp = () => {
       const dateWidth = doc.getTextWidth(dateStr);
       doc.text(dateStr, pageWidth - margin - dateWidth - 3, margin + 8);
 
-      let currentY = margin + 18;
+      // Content starting position
+      let currentY = margin + headerHeight + 5;
 
-      // Process prizes
+      // Process each prize with exact desktop logic
       if (resultData.prizes && resultData.prizes.length > 0) {
-        console.log('Processing', resultData.prizes.length, 'prizes');
+        console.log(`Processing ${resultData.prizes.length} prizes`);
         
         for (let i = 0; i < resultData.prizes.length; i++) {
           const prize = resultData.prizes[i];
-          console.log('Processing prize:', prize.prize_type);
           
+          // Get ticket numbers (same logic as desktop)
           const ticketNumbers = prize.tickets ? 
             prize.tickets.map(t => t.ticket_number) : 
-            (prize.ticket_numbers ? prize.ticket_numbers.split(' ') : []);
+            (prize.ticket_numbers ? prize.ticket_numbers.split(' ').filter(n => n.trim()) : []);
           
           if (ticketNumbers.length === 0) continue;
           
           const isSingleNumber = ticketNumbers.length === 1;
+          const isManyNumbers = ticketNumbers.length > 100;
+          const isMediumNumbers = ticketNumbers.length > 20 && ticketNumbers.length <= 100;
 
           if (isSingleNumber) {
-            // Single number prize layout
+            // === SINGLE NUMBER LAYOUT (same as desktop) ===
+            
             const prizeLabel = getPrizeLabel(prize.prize_type);
             const prizeText = `${prizeLabel} - ₹${formatCurrency(prize.prize_amount)}/-`;
             
-            // Prize title (centered)
+            // Prize title (centered, same as desktop)
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(8);
             const prizeTextWidth = doc.getTextWidth(prizeText);
             doc.text(prizeText, (pageWidth - prizeTextWidth) / 2, currentY);
             
-            currentY += 6;
+            currentY += 5;
             
-            // Large winning number
+            // Large winning number (same styling as desktop)
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(16);
+            doc.setFontSize(14);
             const number = ticketNumbers[0];
             const numberWidth = doc.getTextWidth(number);
             const numberX = (pageWidth - numberWidth) / 2;
             doc.text(number, numberX, currentY);
             
-            // Border around number
-            doc.setLineWidth(0.5);
-            doc.rect(numberX - 3, currentY - 4, numberWidth + 6, 6);
+            // Border around number (same as desktop)
+            doc.setLineWidth(0.8);
+            doc.rect(numberX - 3, currentY - 4, numberWidth + 6, 7);
             
             currentY += 8;
             
-            // Location if available
+            // Location if available (same as desktop)
             if (prize.tickets && prize.tickets[0] && prize.tickets[0].location) {
               doc.setFont('helvetica', 'normal');
-              doc.setFontSize(7);
+              doc.setFontSize(6);
               const location = `(${prize.tickets[0].location})`;
               const locationWidth = doc.getTextWidth(location);
               doc.text(location, (pageWidth - locationWidth) / 2, currentY);
-              currentY += 5;
+              currentY += 4;
             }
             
-            currentY += 5;
+            currentY += 8;
+            
           } else {
-            // Multiple numbers prize layout
+            // === MULTIPLE NUMBERS LAYOUT (same as desktop) ===
             
-            // Prize header background
+            const prizeHeaderHeight = 8;
+            
+            // Prize header background (same as desktop)
             doc.setFillColor(208, 208, 208);
-            doc.rect(margin + 1, currentY, pageWidth - 2 * margin - 2, 8, 'F');
+            doc.rect(margin + 1, currentY, pageWidth - 2 * margin - 2, prizeHeaderHeight, 'F');
             doc.setDrawColor(0, 0, 0);
-            doc.rect(margin + 1, currentY, pageWidth - 2 * margin - 2, 8);
+            doc.setLineWidth(0.5);
+            doc.rect(margin + 1, currentY, pageWidth - 2 * margin - 2, prizeHeaderHeight);
             
-            // Prize title
+            // Prize title (same as desktop)
             doc.setTextColor(0, 0, 0);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(9);
             const prizeLabel = getPrizeLabel(prize.prize_type);
             doc.text(prizeLabel, margin + 3, currentY + 5);
             
-            // Prize amount (right side)
+            // Prize amount box (same as desktop)
             const amountText = `₹${formatCurrency(prize.prize_amount)}/-`;
-            doc.setFontSize(8);
+            doc.setFontSize(7);
             const amountWidth = doc.getTextWidth(amountText);
             
-            // Amount background
             doc.setFillColor(245, 245, 245);
             const amountBoxX = pageWidth - margin - amountWidth - 8;
-            doc.rect(amountBoxX, currentY + 1, amountWidth + 6, 6, 'F');
-            doc.rect(amountBoxX, currentY + 1, amountWidth + 6, 6);
+            const amountBoxWidth = amountWidth + 6;
+            const amountBoxHeight = 5;
+            doc.rect(amountBoxX, currentY + 1.5, amountBoxWidth, amountBoxHeight, 'F');
+            doc.setLineWidth(0.3);
+            doc.rect(amountBoxX, currentY + 1.5, amountBoxWidth, amountBoxHeight);
             
-            doc.text(amountText, amountBoxX + 3, currentY + 5);
+            doc.setTextColor(0, 0, 0);
+            doc.text(amountText, amountBoxX + 3, currentY + 4.5);
             
-            currentY += 10;
+            currentY += prizeHeaderHeight + 2;
             
-            // Numbers grid
-            const maxCols = ticketNumbers.length > 50 ? 5 : (ticketNumbers.length > 20 ? 4 : 3);
-            const cellWidth = (pageWidth - 2 * margin - 10) / maxCols;
-            const cellHeight = 6;
+            // Numbers grid (same logic as desktop)
+            const numbersPerRow = isManyNumbers ? 6 : (isMediumNumbers ? 4 : 3);
+            const gridWidth = pageWidth - 2 * margin - 6;
+            const cellWidth = gridWidth / numbersPerRow;
+            const cellHeight = isManyNumbers ? 5 : 6;
             
             let col = 0;
             let row = 0;
             
             for (let j = 0; j < ticketNumbers.length; j++) {
-              if (col >= maxCols) {
+              if (col >= numbersPerRow) {
                 col = 0;
                 row++;
               }
               
               const x = margin + 3 + col * cellWidth;
-              const y = currentY + row * (cellHeight + 1);
+              const y = currentY + row * (cellHeight + 0.5);
               
-              // Draw cell border
+              // Draw cell border (same as desktop)
               doc.setLineWidth(0.3);
-              doc.rect(x, y, cellWidth - 1, cellHeight);
+              doc.setDrawColor(102, 102, 102);
+              doc.rect(x, y, cellWidth - 0.5, cellHeight);
               
-              // Add number text
+              // Add number text (same as desktop)
               doc.setFont('helvetica', 'bold');
-              doc.setFontSize(ticketNumbers.length > 50 ? 6 : 7);
+              doc.setFontSize(isManyNumbers ? 6 : 7);
+              doc.setTextColor(0, 0, 0);
               const numText = ticketNumbers[j];
               const numWidth = doc.getTextWidth(numText);
-              doc.text(numText, x + (cellWidth - 1 - numWidth) / 2, y + 4);
+              doc.text(numText, x + (cellWidth - 0.5 - numWidth) / 2, y + cellHeight / 2 + 1);
               
               col++;
             }
             
-            currentY += (row + 1) * (cellHeight + 1) + 3;
+            currentY += (row + 1) * (cellHeight + 0.5) + 4;
           }
           
-          // Separator line between prizes
+          // Separator line between prizes (same as desktop)
           if (i < resultData.prizes.length - 1) {
-            doc.setLineWidth(0.2);
+            doc.setLineWidth(0.3);
+            doc.setDrawColor(0, 0, 0);
             doc.line(margin + 1, currentY, pageWidth - margin - 1, currentY);
             currentY += 3;
           }
         }
       }
 
-      // Footer
-      const footerY = pageHeight - margin - 15;
-      doc.setLineWidth(0.5);
+      // Footer (same as desktop)
+      const footerY = pageHeight - margin - 12;
+      doc.setLineWidth(0.8);
+      doc.setDrawColor(0, 0, 0);
       doc.line(margin + 1, footerY, pageWidth - margin - 1, footerY);
       
-      // Footer text in Malayalam
+      // Footer text (English version for better compatibility)
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6);
-      const footerText = 'ഈ ഫലങ്ങൾ ഔദ്യോഗികമായി പ്രസിദ്ധീകരിച്ചതിനനുസരിച്ച് എഴുതിയതാണ്. പവിത്രമായ സംഖ്യകളുടെ സാധുതയും ശ്രദ്ധിക്കുക. സാക്ഷികളുടെ സാന്നിധ്യത്തിലാണ് സമ്മാനം നൽകുന്നത്. നിയമാനുസൃതമായ രേഖകളുണ്ടായിരിക്കണം. ഒറിജിനൽ ടിക്കറ്റ് 30 ദിവസത്തിനുള്ളിൽ ഹാജരാക്കണം.';
+      doc.setFontSize(5);
+      doc.setTextColor(0, 0, 0);
+      const footerText = 'These results are published as per official Kerala State Lottery Department announcement. Please verify with original ticket. Prize claim must be made within 30 days with proper documentation and witness presence.';
       
-      // Split text into multiple lines to fit
       const maxLineWidth = pageWidth - 2 * margin - 6;
       const lines = doc.splitTextToSize(footerText, maxLineWidth);
-      doc.text(lines, margin + 3, footerY + 4);
+      doc.text(lines, margin + 3, footerY + 3);
 
-      console.log('PDF content generated, saving...');
+      console.log('PDF content generated successfully');
+      setError('Saving PDF...');
 
-      // Generate filename
-      const safeLotteryName = resultData.lottery_name.replace(/[^a-zA-Z0-9]/g, '_');
+      // Generate filename (same as desktop)
+      const safeLotteryName = (resultData.lottery_name || 'lottery').replace(/[^a-zA-Z0-9]/g, '_');
       const safeDate = formatDate(resultData.date).replace(/[^a-zA-Z0-9]/g, '_');
       const fileName = `${safeLotteryName}_${safeDate}.pdf`;
 
       // Save the PDF
       doc.save(fileName);
       
-      console.log('PDF saved successfully:', fileName);
+      console.log('=== PDF SAVED SUCCESSFULLY ===', fileName);
       
-      // Show success message
-      setError('PDF downloaded successfully!');
-      setTimeout(() => setError(''), 3000);
+      // Success message
+      setError('✅ PDF downloaded successfully!');
+      setTimeout(() => setError(''), 4000);
 
     } catch (error) {
-      console.error('PDF generation error:', error);
-      setError(`PDF generation failed: ${error.message}. Downloading HTML instead.`);
-      
-      // Fallback to HTML
-      setTimeout(() => {
-        handleMobileHTMLFallback();
-      }, 1000);
+      console.error('=== PDF GENERATION FAILED ===', error);
+      setError(`❌ PDF generation failed: ${error.message}. Please try again.`);
+      setTimeout(() => setError(''), 5000);
     } finally {
       setLoading(false);
     }
@@ -400,25 +492,10 @@ const KeralaLotteryApp = () => {
     return `${prizeType} Prize`;
   };
 
-  // Fallback method for mobile when PDF fails
+  // Fallback method removed - only PDF generation
   const handleMobileHTMLFallback = () => {
-    try {
-      const printContent = createPrintContent();
-      const blob = new Blob([printContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${resultData.lottery_name.replace(/[^a-z0-9]/gi, '_')}_${formatDate(resultData.date).replace(/[^a-z0-9]/gi, '_')}.html`;
-      link.click();
-      URL.revokeObjectURL(url);
-      
-      // Show message that HTML was downloaded instead
-      setError('PDF generation not supported. Downloaded as HTML file instead.');
-      setTimeout(() => setError(''), 5000);
-    } catch (fallbackError) {
-      setError('Unable to download file. Please try a different browser.');
-      setTimeout(() => setError(''), 3000);
-    }
+    setError('❌ PDF generation is required. Please try again or use a different browser.');
+    setTimeout(() => setError(''), 5000);
   };
 
   // Fixed print function for mobile compatibility with PDF generation
