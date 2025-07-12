@@ -115,7 +115,7 @@ const KeralaLotteryApp = () => {
     fetchLotteryResult(lottery.unique_id);
   };
 
-  // Fixed print function for mobile compatibility
+  // Fixed print function for mobile compatibility with PDF generation
   const handlePrint = () => {
     if (!resultData) return;
 
@@ -124,34 +124,200 @@ const KeralaLotteryApp = () => {
     const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent);
     
     if (isMobileDevice) {
-      // For mobile devices, create a simplified version and use different approach
-      handleMobilePrint();
+      // For mobile devices, generate PDF directly
+      handleMobilePDFGeneration();
     } else {
       // Desktop print functionality
       handleDesktopPrint();
     }
   };
 
-  const handleMobilePrint = () => {
-    // Create a simplified print content for mobile
-    const printContent = createPrintContent();
-    
-    // Try different approaches for mobile
-    if ('share' in navigator) {
-      // Use Web Share API if available
-      const blob = new Blob([printContent], { type: 'text/html' });
-      const file = new File([blob], `${resultData.lottery_name}_${formatDate(resultData.date)}.html`, { type: 'text/html' });
-      
-      navigator.share({
-        title: `${resultData.lottery_name} - ${formatDate(resultData.date)}`,
-        files: [file]
-      }).catch(() => {
-        // Fallback to opening in new tab
-        openPrintWindow(printContent);
+  const handleMobilePDFGeneration = async () => {
+    try {
+      // Import jsPDF dynamically
+      const jsPDFModule = await import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      const { jsPDF } = jsPDFModule;
+
+      // Create new PDF document
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
       });
-    } else {
-      // Fallback: open in new tab
-      openPrintWindow(printContent);
+
+      // Set font
+      doc.setFont('helvetica');
+
+      // Page dimensions
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 5;
+
+      // Draw border
+      doc.setLineWidth(1);
+      doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+
+      // Header section
+      doc.setFillColor(224, 224, 224);
+      doc.rect(margin + 1, margin + 1, pageWidth - 2 * margin - 2, 12, 'F');
+      doc.rect(margin + 1, margin + 1, pageWidth - 2 * margin - 2, 12);
+
+      // Header text
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(resultData.draw_number || 'KN-XXX', margin + 3, margin + 8);
+      
+      // Center title
+      const title = resultData.lottery_name;
+      const titleWidth = doc.getTextWidth(title);
+      doc.setFontSize(12);
+      doc.text(title, (pageWidth - titleWidth) / 2, margin + 8);
+      
+      // Date on right
+      doc.setFontSize(10);
+      const dateText = formatDate(resultData.date);
+      const dateWidth = doc.getTextWidth(dateText);
+      doc.text(dateText, pageWidth - margin - dateWidth - 3, margin + 8);
+
+      // Content starting Y position
+      let currentY = margin + 15;
+
+      // Process each prize
+      if (resultData.prizes) {
+        for (let i = 0; i < resultData.prizes.length; i++) {
+          const prize = resultData.prizes[i];
+          const ticketNumbers = prize.tickets ? 
+            prize.tickets.map(t => t.ticket_number) : 
+            prize.ticket_numbers.split(' ');
+          
+          const isSingleNumber = ticketNumbers.length === 1;
+
+          if (isSingleNumber) {
+            // Single number layout
+            const prizeText = `${prize.prize_type === '1st' ? '1st Prize' :
+              prize.prize_type === '2nd' ? '2nd Prize' :
+              prize.prize_type === '3rd' ? '3rd Prize' :
+              prize.prize_type === 'consolation' ? 'Consolation Prize' :
+              prize.prize_type.includes('സമാധാനം') ? 'Consolation Prize' :
+              `${prize.prize_type} Prize`} - ₹${formatCurrency(prize.prize_amount)}/-`;
+            
+            // Center the content
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            const prizeTextWidth = doc.getTextWidth(prizeText);
+            doc.text(prizeText, (pageWidth - prizeTextWidth) / 2, currentY + 5);
+            
+            // Large number
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            const numberWidth = doc.getTextWidth(ticketNumbers[0]);
+            doc.text(ticketNumbers[0], (pageWidth - numberWidth) / 2, currentY + 12);
+            
+            // Border around number
+            doc.setLineWidth(0.5);
+            doc.rect((pageWidth - numberWidth) / 2 - 2, currentY + 8, numberWidth + 4, 6);
+            
+            // Location if available
+            if (prize.tickets && prize.tickets[0].location) {
+              doc.setFontSize(6);
+              doc.setFont('helvetica', 'normal');
+              const locationText = `(${prize.tickets[0].location})`;
+              const locationWidth = doc.getTextWidth(locationText);
+              doc.text(locationText, (pageWidth - locationWidth) / 2, currentY + 18);
+              currentY += 25;
+            } else {
+              currentY += 20;
+            }
+          } else {
+            // Multiple numbers layout
+            // Prize header
+            doc.setFillColor(208, 208, 208);
+            doc.rect(margin + 1, currentY, pageWidth - 2 * margin - 2, 8, 'F');
+            doc.rect(margin + 1, currentY, pageWidth - 2 * margin - 2, 8);
+            
+            // Prize title
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            const prizeTitle = `${prize.prize_type === '1st' ? '1st Prize' :
+              prize.prize_type === '2nd' ? '2nd Prize' :
+              prize.prize_type === '3rd' ? '3rd Prize' :
+              prize.prize_type === 'consolation' ? 'Consolation Prize' :
+              prize.prize_type.includes('സമാധാനം') ? 'Consolation Prize' :
+              `${prize.prize_type} Prize`}`;
+            doc.text(prizeTitle, margin + 3, currentY + 5);
+            
+            // Prize amount
+            const amountText = `₹${formatCurrency(prize.prize_amount)}/-`;
+            const amountWidth = doc.getTextWidth(amountText);
+            doc.setFillColor(245, 245, 245);
+            doc.rect(pageWidth - margin - amountWidth - 8, currentY + 1, amountWidth + 6, 6, 'F');
+            doc.rect(pageWidth - margin - amountWidth - 8, currentY + 1, amountWidth + 6, 6);
+            doc.setFontSize(7);
+            doc.text(amountText, pageWidth - margin - amountWidth - 5, currentY + 5);
+            
+            currentY += 10;
+            
+            // Numbers section
+            const numbersPerRow = ticketNumbers.length > 100 ? 6 : ticketNumbers.length > 20 ? 4 : 3;
+            const numberWidth = (pageWidth - 2 * margin - 10) / numbersPerRow;
+            const numberHeight = 6;
+            
+            let x = margin + 3;
+            let y = currentY;
+            
+            for (let j = 0; j < ticketNumbers.length; j++) {
+              if (j > 0 && j % numbersPerRow === 0) {
+                x = margin + 3;
+                y += numberHeight + 1;
+              }
+              
+              // Draw number box
+              doc.setLineWidth(0.3);
+              doc.rect(x, y, numberWidth - 1, numberHeight);
+              
+              // Add number text
+              doc.setFontSize(ticketNumbers.length > 100 ? 6 : 7);
+              doc.setFont('helvetica', 'bold');
+              const numText = ticketNumbers[j];
+              const numTextWidth = doc.getTextWidth(numText);
+              doc.text(numText, x + (numberWidth - 1 - numTextWidth) / 2, y + 4);
+              
+              x += numberWidth;
+            }
+            
+            currentY = y + numberHeight + 5;
+          }
+          
+          // Add separator line
+          if (i < resultData.prizes.length - 1) {
+            doc.setLineWidth(0.2);
+            doc.line(margin + 1, currentY, pageWidth - margin - 1, currentY);
+            currentY += 3;
+          }
+        }
+      }
+
+      // Footer
+      const footerY = pageHeight - margin - 15;
+      doc.setLineWidth(0.5);
+      doc.line(margin + 1, footerY, pageWidth - margin - 1, footerY);
+      
+      doc.setFontSize(5);
+      doc.setFont('helvetica', 'normal');
+      const footerText = 'ഈ ഫലങ്ങൾ ഔദ്യോഗികമായി പ്രസിദ്ധീകരിച്ചതിനനുസരിച്ച് എഴുതിയതാണ്. പവിത്രമായ സംഖ്യകളുടെ സാധുതയും ശ്രദ്ധിക്കുക. സാക്ഷികളുടെ സാന്നിധ്യത്തിലാണ് സമ്മാനം നൽകുന്നത്. നിയമാനുസൃതമായ രേഖകളുണ്ടായിരിക്കണം. ഒറിജിനൽ ടിക്കറ്റ് 30 ദിവസത്തിനുള്ളിൽ ഹാജരാക്കണം.';
+      
+      // Split footer text into multiple lines
+      const lines = doc.splitTextToSize(footerText, pageWidth - 2 * margin - 6);
+      doc.text(lines, margin + 3, footerY + 4);
+
+      // Save the PDF
+      const fileName = `${resultData.lottery_name.replace(/[^a-z0-9]/gi, '_')}_${formatDate(resultData.date).replace(/[^a-z0-9]/gi, '_')}.pdf`;
+      doc.save(fileName);
+
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      // Show error message
+      alert('Unable to generate PDF. Please try again or use a different browser.');
     }
   };
 
@@ -170,20 +336,10 @@ const KeralaLotteryApp = () => {
       // Add a small delay for content to load
       setTimeout(() => {
         printWindow.print();
-        // Don't auto-close on mobile as user might want to save/share
-        if (!isMobile) {
-          printWindow.close();
-        }
+        printWindow.close();
       }, 500);
     } else {
-      // If popup blocked, try alternative method
-      const blob = new Blob([printContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${resultData.lottery_name}_${formatDate(resultData.date)}.html`;
-      link.click();
-      URL.revokeObjectURL(url);
+      alert('Please allow popups to print the lottery results.');
     }
   };
 
