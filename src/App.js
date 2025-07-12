@@ -386,11 +386,24 @@ const KeralaLotteryApp = () => {
             
             currentY += prizeHeaderHeight + 2;
             
-            // Numbers grid (same logic as desktop)
-            const numbersPerRow = isManyNumbers ? 6 : (isMediumNumbers ? 4 : 3);
+            // Numbers grid (EXACT DESKTOP LAYOUT)
+            const isConsolationPrize = prizeLabel.toLowerCase().includes('consolation');
+            
+            // Desktop-style grid layout
+            let numbersPerRow;
+            if (isConsolationPrize) {
+              numbersPerRow = 10; // Consolation prizes: 10 per row (like desktop)
+            } else if (isManyNumbers) {
+              numbersPerRow = 15; // Many numbers: 15 per row (like desktop)
+            } else if (isMediumNumbers) {
+              numbersPerRow = 12; // Medium numbers: 12 per row (like desktop)
+            } else {
+              numbersPerRow = 8; // Default: 8 per row (like desktop)
+            }
+            
             const gridWidth = pageWidth - 2 * margin - 6;
             const cellWidth = gridWidth / numbersPerRow;
-            const cellHeight = isManyNumbers ? 5 : 6;
+            const cellHeight = isConsolationPrize ? 4.5 : (isManyNumbers ? 4 : 5);
             
             let col = 0;
             let row = 0;
@@ -402,25 +415,25 @@ const KeralaLotteryApp = () => {
               }
               
               const x = margin + 3 + col * cellWidth;
-              const y = currentY + row * (cellHeight + 0.5);
+              const y = currentY + row * (cellHeight + 0.3);
               
-              // Draw cell border (same as desktop)
-              doc.setLineWidth(0.3);
+              // Draw cell border (EXACT DESKTOP STYLE)
+              doc.setLineWidth(0.2);
               doc.setDrawColor(102, 102, 102);
-              doc.rect(x, y, cellWidth - 0.5, cellHeight);
+              doc.rect(x, y, cellWidth - 0.3, cellHeight);
               
-              // Add number text (same as desktop)
+              // Add number text (EXACT DESKTOP STYLE)
               doc.setFont('helvetica', 'bold');
-              doc.setFontSize(isManyNumbers ? 6 : 7);
+              doc.setFontSize(isConsolationPrize ? 5.5 : (isManyNumbers ? 5 : 6));
               doc.setTextColor(0, 0, 0);
               const numText = ticketNumbers[j];
               const numWidth = doc.getTextWidth(numText);
-              doc.text(numText, x + (cellWidth - 0.5 - numWidth) / 2, y + cellHeight / 2 + 1);
+              doc.text(numText, x + (cellWidth - 0.3 - numWidth) / 2, y + cellHeight / 2 + 0.8);
               
               col++;
             }
             
-            currentY += (row + 1) * (cellHeight + 0.5) + 4;
+            currentY += (row + 1) * (cellHeight + 0.3) + 3;
           }
           
           // Separator line between prizes (same as desktop)
@@ -433,21 +446,21 @@ const KeralaLotteryApp = () => {
         }
       }
 
-      // Footer (same as desktop)
-      const footerY = pageHeight - margin - 12;
+      // Footer (EXACT DESKTOP LAYOUT)
+      const footerY = pageHeight - margin - 10;
       doc.setLineWidth(0.8);
       doc.setDrawColor(0, 0, 0);
       doc.line(margin + 1, footerY, pageWidth - margin - 1, footerY);
       
-      // Footer text (English version for better compatibility)
+      // Footer text (MALAYALAM - EXACT DESKTOP MATCH)
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(5);
+      doc.setFontSize(4.5);
       doc.setTextColor(0, 0, 0);
-      const footerText = 'These results are published as per official Kerala State Lottery Department announcement. Please verify with original ticket. Prize claim must be made within 30 days with proper documentation and witness presence.';
+      const footerText = 'ഈ ഫലങ്ങൾ ഔദ്യോഗികമായി പ്രസിദ്ധീകരിച്ചതിനനുസരിച്ച് എഴുതിയതാണ്. പവിത്രമായ സംഖ്യകളുടെ സാധുതയും ശ്രദ്ധിക്കുക. സാക്ഷികളുടെ സാന്നിധ്യത്തിലാണ് സമ്മാനം നൽകുന്നത്. നിയമാനുസൃതമായ രേഖകളുണ്ടായിരിക്കണം. ഒറിജിനൽ ടിക്കറ്റ് 30 ദിവസത്തിനുള്ളിൽ ഹാജരാക്കണം.';
       
-      const maxLineWidth = pageWidth - 2 * margin - 6;
+      const maxLineWidth = pageWidth - 2 * margin - 4;
       const lines = doc.splitTextToSize(footerText, maxLineWidth);
-      doc.text(lines, margin + 3, footerY + 3);
+      doc.text(lines, margin + 2, footerY + 2.5);
 
       console.log('PDF content generated successfully');
       setError('Saving PDF...');
