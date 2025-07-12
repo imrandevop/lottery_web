@@ -115,8 +115,79 @@ const KeralaLotteryApp = () => {
     fetchLotteryResult(lottery.unique_id);
   };
 
+  // Fixed print function for mobile compatibility
   const handlePrint = () => {
-    // Add print-specific styles
+    if (!resultData) return;
+
+    // Check if mobile
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent);
+    
+    if (isMobileDevice) {
+      // For mobile devices, create a simplified version and use different approach
+      handleMobilePrint();
+    } else {
+      // Desktop print functionality
+      handleDesktopPrint();
+    }
+  };
+
+  const handleMobilePrint = () => {
+    // Create a simplified print content for mobile
+    const printContent = createPrintContent();
+    
+    // Try different approaches for mobile
+    if ('share' in navigator) {
+      // Use Web Share API if available
+      const blob = new Blob([printContent], { type: 'text/html' });
+      const file = new File([blob], `${resultData.lottery_name}_${formatDate(resultData.date)}.html`, { type: 'text/html' });
+      
+      navigator.share({
+        title: `${resultData.lottery_name} - ${formatDate(resultData.date)}`,
+        files: [file]
+      }).catch(() => {
+        // Fallback to opening in new tab
+        openPrintWindow(printContent);
+      });
+    } else {
+      // Fallback: open in new tab
+      openPrintWindow(printContent);
+    }
+  };
+
+  const handleDesktopPrint = () => {
+    const printContent = createPrintContent();
+    openPrintWindow(printContent);
+  };
+
+  const openPrintWindow = (printContent) => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      
+      // Add a small delay for content to load
+      setTimeout(() => {
+        printWindow.print();
+        // Don't auto-close on mobile as user might want to save/share
+        if (!isMobile) {
+          printWindow.close();
+        }
+      }, 500);
+    } else {
+      // If popup blocked, try alternative method
+      const blob = new Blob([printContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${resultData.lottery_name}_${formatDate(resultData.date)}.html`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const createPrintContent = () => {
     const printStyles = `
       <style>
         @media print {
@@ -262,21 +333,10 @@ const KeralaLotteryApp = () => {
             flex-shrink: 0 !important;
           }
           
-          /* Hide everything except print content */
-          body > *:not(.print-only) {
-            display: none !important;
-          }
-          
-          .print-only {
-            display: block !important;
-          }
-          
-          /* Special styling for single number prizes */
           .single-number-prize .print-numbers-section {
             justify-content: center !important;
           }
           
-          /* Compact for many numbers */
           .many-numbers .print-number {
             min-width: 44px !important;
             font-size: 11px !important;
@@ -287,105 +347,115 @@ const KeralaLotteryApp = () => {
             gap: 1px !important;
           }
           
-          /* Medium size for moderate numbers */
           .medium-numbers .print-number {
             min-width: 46px !important;
             font-size: 12px !important;
             height: 19px !important;
           }
         }
+        
+        /* Mobile specific styles */
+        @media screen and (max-width: 768px) {
+          body {
+            font-size: 14px !important;
+          }
+          
+          .print-container {
+            margin: 10px !important;
+          }
+          
+          .print-header {
+            padding: 8px !important;
+            font-size: 14px !important;
+          }
+          
+          .print-title {
+            font-size: 16px !important;
+          }
+        }
       </style>
     `;
     
-    // Create print content
-    if (resultData) {
-      const printWindow = window.open('', '_blank');
-      const printContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${resultData.lottery_name} - ${formatDate(resultData.date)}</title>
-          <meta charset="UTF-8">
-          ${printStyles}
-        </head>
-        <body>
-          <div class="print-only print-container">
-            <div class="print-header">
-              <span>${resultData.draw_number || 'KN-XXX'}</span>
-              <span class="print-title">${resultData.lottery_name}</span>
-              <span>${formatDate(resultData.date)}</span>
-            </div>
-            
-            <div class="print-content">
-              ${resultData.prizes?.map((prize, index) => {
-                const ticketNumbers = prize.tickets ? 
-                  prize.tickets.map(t => t.ticket_number) : 
-                  prize.ticket_numbers.split(' ');
-                
-                const isSingleNumber = ticketNumbers.length === 1;
-                const isManyNumbers = ticketNumbers.length > 100;
-                const isMediumNumbers = ticketNumbers.length > 20 && ticketNumbers.length <= 100;
-                
-                const prizeClass = isSingleNumber ? 'single-number-prize' : 
-                                  isManyNumbers ? 'many-numbers' : 
-                                  isMediumNumbers ? 'medium-numbers' : '';
-                
-                return `
-                <div class="print-prize-section ${prizeClass}">
-                  ${isSingleNumber ? 
-                    `<div class="print-numbers-section">
-                       <div style="text-align: center;">
-                         <div style="font-size: 11px; font-weight: bold; margin-bottom: 2px;">
-                           ${prize.prize_type === '1st' ? '1st Prize' :
-                             prize.prize_type === '2nd' ? '2nd Prize' :
-                             prize.prize_type === '3rd' ? '3rd Prize' :
-                             prize.prize_type === 'consolation' ? 'Consolation Prize' :
-                             prize.prize_type.includes('സമാധാനം') ? 'Consolation Prize' :
-                             `${prize.prize_type} Prize`} - ₹${formatCurrency(prize.prize_amount)}/-
-                         </div>
-                         <div class="print-number-large">${ticketNumbers[0]}</div>
-                         ${prize.tickets && prize.tickets[0].location ? 
-                           `<div style="text-align: center; font-size: 9px; margin-top: 2px;">(${prize.tickets[0].location})</div>` : ''}
-                       </div>
-                     </div>` :
-                    `<div class="print-prize-header">
-                       <span class="print-prize-title">
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${resultData.lottery_name} - ${formatDate(resultData.date)}</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${printStyles}
+      </head>
+      <body>
+        <div class="print-container">
+          <div class="print-header">
+            <span>${resultData.draw_number || 'KN-XXX'}</span>
+            <span class="print-title">${resultData.lottery_name}</span>
+            <span>${formatDate(resultData.date)}</span>
+          </div>
+          
+          <div class="print-content">
+            ${resultData.prizes?.map((prize, index) => {
+              const ticketNumbers = prize.tickets ? 
+                prize.tickets.map(t => t.ticket_number) : 
+                prize.ticket_numbers.split(' ');
+              
+              const isSingleNumber = ticketNumbers.length === 1;
+              const isManyNumbers = ticketNumbers.length > 100;
+              const isMediumNumbers = ticketNumbers.length > 20 && ticketNumbers.length <= 100;
+              
+              const prizeClass = isSingleNumber ? 'single-number-prize' : 
+                                isManyNumbers ? 'many-numbers' : 
+                                isMediumNumbers ? 'medium-numbers' : '';
+              
+              return `
+              <div class="print-prize-section ${prizeClass}">
+                ${isSingleNumber ? 
+                  `<div class="print-numbers-section">
+                     <div style="text-align: center;">
+                       <div style="font-size: 11px; font-weight: bold; margin-bottom: 2px;">
                          ${prize.prize_type === '1st' ? '1st Prize' :
                            prize.prize_type === '2nd' ? '2nd Prize' :
                            prize.prize_type === '3rd' ? '3rd Prize' :
                            prize.prize_type === 'consolation' ? 'Consolation Prize' :
                            prize.prize_type.includes('സമാധാനം') ? 'Consolation Prize' :
-                           `${prize.prize_type} Prize`}
-                       </span>
-                       <span class="print-prize-amount">
-                         ₹${formatCurrency(prize.prize_amount)}/-
-                       </span>
-                     </div>
-                     
-                     <div class="print-numbers-section">
-                       <div class="print-numbers-grid">
-                         ${ticketNumbers.map(num => `<div class="print-number">${num}</div>`).join('')}
+                           `${prize.prize_type} Prize`} - ₹${formatCurrency(prize.prize_amount)}/-
                        </div>
-                     </div>`
-                  }
-                </div>
-              `;}).join('') || ''}
-            </div>
-            
-            <div class="print-footer-text">
-              ഈ ഫലങ്ങൾ ഔദ്യോഗികമായി പ്രസിദ്ധീകരിച്ചതിനനുസരിച്ച് എഴുതിയതാണ്. പവിത്രമായ സംഖ്യകളുടെ സാധുതയും ശ്രദ്ധിക്കുക. സാക്ഷികളുടെ സാന്നിധ്യത്തിലാണ് സമ്മാനം നൽകുന്നത്. നിയമാനുസൃതമായ രേഖകളുണ്ടായിരിക്കണം. ഒറിജിനൽ ടിക്കറ്റ് 30 ദിവസത്തിനുള്ളിൽ ഹാജരാക്കണം.
-            </div>
+                       <div class="print-number-large">${ticketNumbers[0]}</div>
+                       ${prize.tickets && prize.tickets[0].location ? 
+                         `<div style="text-align: center; font-size: 9px; margin-top: 2px;">(${prize.tickets[0].location})</div>` : ''}
+                     </div>
+                   </div>` :
+                  `<div class="print-prize-header">
+                     <span class="print-prize-title">
+                       ${prize.prize_type === '1st' ? '1st Prize' :
+                         prize.prize_type === '2nd' ? '2nd Prize' :
+                         prize.prize_type === '3rd' ? '3rd Prize' :
+                         prize.prize_type === 'consolation' ? 'Consolation Prize' :
+                         prize.prize_type.includes('സമാധാനം') ? 'Consolation Prize' :
+                         `${prize.prize_type} Prize`}
+                     </span>
+                     <span class="print-prize-amount">
+                       ₹${formatCurrency(prize.prize_amount)}/-
+                     </span>
+                   </div>
+                   
+                   <div class="print-numbers-section">
+                     <div class="print-numbers-grid">
+                       ${ticketNumbers.map(num => `<div class="print-number">${num}</div>`).join('')}
+                     </div>
+                   </div>`
+                }
+              </div>
+            `;}).join('') || ''}
           </div>
-        </body>
-        </html>
-      `;
-      
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }
+          
+          <div class="print-footer-text">
+            ഈ ഫലങ്ങൾ ഔദ്യോഗികമായി പ്രസിദ്ധീകരിച്ചതിനനുസരിച്ച് എഴുതിയതാണ്. പവിത്രമായ സംഖ്യകളുടെ സാധുതയും ശ്രദ്ധിക്കുക. സാക്ഷികളുടെ സാന്നിധ്യത്തിലാണ് സമ്മാനം നൽകുന്നത്. നിയമാനുസൃതമായ രേഖകളുണ്ടായിരിക്കണം. ഒറിജിനൽ ടിക്കറ്റ് 30 ദിവസത്തിനുള്ളിൽ ഹാജരാക്കണം.
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
   };
 
   const formatDate = (dateString) => {
@@ -492,7 +562,6 @@ const KeralaLotteryApp = () => {
                   const hasMultipleTickets = ticketNumbers.length > 1;
                   
                   if (hasMultipleTickets) {
-                    // Check if it's 4th to 10th prize (usually has many small ticket numbers)
                     const isSmallPrize = prize.prize_type && (
                       prize.prize_type.includes('4th') || 
                       prize.prize_type.includes('5th') || 
@@ -561,7 +630,6 @@ const KeralaLotteryApp = () => {
 
   const LotteryList = ({ onItemClick, selectedId }) => (
     <div>
-      
       {listLoading ? (
         <div style={{
           color: darkMode ? '#BDBDBD' : '#666',
@@ -885,12 +953,12 @@ const KeralaLotteryApp = () => {
           display: 'flex',
           minHeight: 'calc(100vh - 100px)'
         }}>
-          {/* Desktop Sidebar */}
+          {/* Desktop Sidebar - Fixed margin alignment */}
           {!isMobile && (
             <aside style={{
               width: '320px',
               backgroundColor: darkMode ? '#1E1E1E' : 'white',
-              marginTop: '10px',
+              marginTop: '20px', // Fixed: Same as main content
               marginLeft: '10px',
               marginRight: '10px',
               borderRadius: '8px',
@@ -960,10 +1028,11 @@ const KeralaLotteryApp = () => {
             </div>
           )}
 
-          {/* Main Content */}
+          {/* Main Content - Fixed margin alignment */}
           <main style={{
             flex: 1,
             padding: '20px',
+            paddingTop: '20px', // Fixed: Consistent with sidebar
             overflow: 'auto'
           }}>
             {!selectedLottery ? (
@@ -1055,7 +1124,7 @@ const KeralaLotteryApp = () => {
                     Date: {formatDate(resultData.date)}
                   </div>
 
-                  {/* Action Buttons - Moved below draw number and date */}
+                  {/* Action Buttons */}
                   <div style={{ 
                     display: 'flex', 
                     gap: '8px', 
