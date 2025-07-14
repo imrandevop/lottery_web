@@ -1,4 +1,4 @@
-// utils/pdfGenerator.js - IMPROVED VERSION WITH BETTER READABILITY
+// utils/pdfGenerator.js - EXACT PDF REPLICA - COMPACT A4 FIT
 import { formatDate, formatCurrency, getPrizeLabel } from './formatters';
 import { MALAYALAM_FOOTER_TEXT } from './constants';
 
@@ -91,22 +91,21 @@ export const generatePDF = async (resultData, darkMode = false) => {
   
   const pageWidth = 210;
   const pageHeight = 297;
-  const margin = 4;
+  const margin = 3;
   const usableWidth = pageWidth - 2 * margin;
 
-  // Outer border - thicker for better visibility
+  // Outer border - exactly like PDF
   doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(1.2);
+  doc.setLineWidth(0.8);
   doc.rect(margin, margin, usableWidth, pageHeight - 2 * margin);
 
   let currentY = margin + 1;
 
-  // Header section
-  currentY = addImprovedHeader(doc, resultData, currentY, margin, usableWidth, pageWidth);
+  // Header section - compact
+  currentY = addCompactHeader(doc, resultData, currentY, margin, usableWidth, pageWidth);
 
-  // Process prizes
+  // Process prizes - compact layout
   if (resultData.prizes && resultData.prizes.length > 0) {
-    // Sort prizes by type for proper display order
     const sortedPrizes = sortPrizesByType(resultData.prizes);
     
     for (let i = 0; i < sortedPrizes.length; i++) {
@@ -114,19 +113,22 @@ export const generatePDF = async (resultData, darkMode = false) => {
       const ticketNumbers = getTicketNumbers(prize);
       
       if (prize.prize_type.toLowerCase() === '1st') {
-        currentY = addFirstPrizeImproved(doc, prize, ticketNumbers[0], currentY, margin, usableWidth, pageWidth);
+        currentY = addCompactFirstPrize(doc, prize, ticketNumbers[0], currentY, margin, usableWidth, pageWidth);
       } else if (prize.prize_type.toLowerCase() === 'consolation') {
-        currentY = addConsolationPrizeImproved(doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth);
+        currentY = addCompactConsolationPrize(doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth);
       } else if (['2nd', '3rd'].includes(prize.prize_type.toLowerCase())) {
-        currentY = addSinglePrizeImproved(doc, prize, ticketNumbers[0], currentY, margin, usableWidth, pageWidth);
+        currentY = addCompactSinglePrize(doc, prize, ticketNumbers[0], currentY, margin, usableWidth, pageWidth);
       } else {
-        currentY = addMultiPrizeImproved(doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth);
+        currentY = addCompactMultiPrize(doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth);
       }
+      
+      // Minimal spacing between sections
+      currentY += 1;
     }
   }
 
-  // Footer
-  addImprovedFooter(doc, pageWidth, pageHeight, margin);
+  // Footer - compact
+  addCompactFooter(doc, pageWidth, pageHeight, margin);
 
   // Save
   const safeLotteryName = (resultData.lottery_name || 'lottery').replace(/[^a-zA-Z0-9]/g, '_');
@@ -136,266 +138,288 @@ export const generatePDF = async (resultData, darkMode = false) => {
   doc.save(fileName);
 };
 
-const addImprovedHeader = (doc, resultData, currentY, margin, usableWidth, pageWidth) => {
-  // Header background - darker gray for better contrast
-  doc.setFillColor(180, 180, 180);
-  doc.rect(margin, currentY, usableWidth, 14, 'F');
-  
-  // Header border
-  doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(0.8);
-  doc.rect(margin, currentY, usableWidth, 14);
-
-  // Header text - larger and bolder
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  
-  const drawNumber = resultData.draw_number || 'KN-XXX';
-  const lotteryName = resultData.lottery_name || 'Kerala Lottery';
-  const dateStr = formatDate(resultData.date);
-  
-  // Left: Draw number
-  doc.text(drawNumber, margin + 3, currentY + 8);
-  
-  // Center: Lottery name
-  const titleWidth = doc.getTextWidth(lotteryName);
-  doc.text(lotteryName, (pageWidth - titleWidth) / 2, currentY + 8);
-  
-  // Right: Date
-  const dateWidth = doc.getTextWidth(dateStr);
-  doc.text(dateStr, pageWidth - margin - dateWidth - 3, currentY + 8);
-
-  // Add Malayalam text - more prominent
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  const malayalamText = "കാരുണ്യ പ്ലസ്";
-  const malayalamWidth = doc.getTextWidth(malayalamText);
-  doc.text(malayalamText, (pageWidth - malayalamWidth) / 2, currentY + 11.5);
-
-  return currentY + 17;
-};
-
-const addFirstPrizeImproved = (doc, prize, ticketNumber, currentY, margin, usableWidth, pageWidth) => {
-  // Prize header with amount - more prominent
-  doc.setFillColor(220, 220, 220);
-  doc.rect(margin, currentY, usableWidth, 10, 'F');
+const addCompactHeader = (doc, resultData, currentY, margin, usableWidth, pageWidth) => {
+  // Header with border
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(0.8);
   doc.rect(margin, currentY, usableWidth, 10);
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  // Header text
   doc.setTextColor(0, 0, 0);
-  
-  const prizeText = `ഒന്നാം സമ്മാനം ₹${formatCurrency(prize.prize_amount)}/-`;
-  const prizeWidth = doc.getTextWidth(prizeText);
-  doc.text(prizeText, (pageWidth - prizeWidth) / 2, currentY + 6.5);
-
-  currentY += 12;
-
-  // Large winning number - bigger and more prominent
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(28);
-  const numberWidth = doc.getTextWidth(ticketNumber);
-  const numberX = (pageWidth - numberWidth) / 2;
-  doc.text(ticketNumber, numberX, currentY + 9);
+  doc.setFontSize(11);
+  
+  const drawNumber = resultData.draw_number || 'SK-11';
+  const lotteryName = resultData.lottery_name || 'SUVARNA KERALAM';
+  const dateStr = formatDate(resultData.date);
+  
+  // Left: Draw number
+  doc.text(drawNumber, margin + 2, currentY + 6);
+  
+  // Center: Lottery name
+  doc.setFontSize(14);
+  const titleWidth = doc.getTextWidth(lotteryName);
+  doc.text(lotteryName, (pageWidth - titleWidth) / 2, currentY + 6);
+  
+  // Right: Date
+  doc.setFontSize(11);
+  const dateWidth = doc.getTextWidth(dateStr);
+  doc.text(dateStr, pageWidth - margin - dateWidth - 2, currentY + 6);
 
-  // Box around number - thicker border
-  doc.setLineWidth(1.5);
-  doc.rect(numberX - 5, currentY + 1, numberWidth + 10, 12);
-
-  currentY += 15;
-
-  // Location if available - larger font
-  if (prize.tickets && prize.tickets[0] && prize.tickets[0].location) {
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    const location = `(${prize.tickets[0].location})`;
-    const locationWidth = doc.getTextWidth(location);
-    doc.text(location, (pageWidth - locationWidth) / 2, currentY + 3);
-    currentY += 6;
-  }
-
-  // Separator line - thicker
-  doc.setLineWidth(0.8);
-  doc.line(margin, currentY + 2, pageWidth - margin, currentY + 2);
-
-  return currentY + 5;
+  return currentY + 12;
 };
 
-const addConsolationPrizeImproved = (doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth) => {
-  // Consolation header - more prominent
-  doc.setFillColor(210, 210, 210);
-  doc.rect(margin, currentY, usableWidth, 8, 'F');
-  doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(0.8);
-  doc.rect(margin, currentY, usableWidth, 8);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(0, 0, 0);
+const addCompactFirstPrize = (doc, prize, ticketNumber, currentY, margin, usableWidth, pageWidth) => {
+  const sectionHeight = 14;
   
-  const consolationText = `സമാധാന സമ്മാനം ${ticketNumbers.length} പേർക്ക് ₹${formatCurrency(prize.prize_amount)}/- വീതം`;
-  const consolationWidth = doc.getTextWidth(consolationText);
-  doc.text(consolationText, (pageWidth - consolationWidth) / 2, currentY + 5.5);
+  // Prize section border
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, currentY, usableWidth, sectionHeight);
 
-  currentY += 10;
+  // Prize header background
+  doc.setFillColor(248, 248, 248);
+  doc.rect(margin, currentY, usableWidth, 5, 'F');
+  
+  // Header border
+  doc.setLineWidth(0.5);
+  doc.line(margin, currentY + 5, pageWidth - margin, currentY + 5);
 
-  // Consolation numbers - larger and more readable
+  // Prize header text
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
-  
-  let consolationLine = "";
-  ticketNumbers.forEach((num, index) => {
-    if (index > 0) consolationLine += "  ";
-    consolationLine += num;
-  });
-  
-  const lineWidth = doc.getTextWidth(consolationLine);
-  const startX = (pageWidth - lineWidth) / 2;
-  doc.text(consolationLine, startX, currentY + 5);
-
-  // Box around consolation numbers - thicker
-  doc.setLineWidth(0.8);
-  doc.rect(startX - 3, currentY + 1, lineWidth + 6, 7);
-
-  currentY += 10;
-
-  // Separator line
-  doc.setLineWidth(0.8);
-  doc.line(margin, currentY, pageWidth - margin, currentY);
-
-  return currentY + 3;
-};
-
-const addSinglePrizeImproved = (doc, prize, ticketNumber, currentY, margin, usableWidth, pageWidth) => {
-  // Prize header - more prominent
-  doc.setFillColor(235, 235, 235);
-  doc.rect(margin, currentY, usableWidth, 7, 'F');
-  doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(0.6);
-  doc.rect(margin, currentY, usableWidth, 7);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
   doc.setTextColor(0, 0, 0);
   
-  const prizeLabel = getPrizeLabel(prize.prize_type);
-  const malayalamPrize = prizeLabel === '2nd Prize' ? 'രണ്ടാം സമ്മാനം' : 'മൂന്നാം സമ്മാനം';
+  // Left: Prize label
+  doc.text('1st Prize', margin + 2, currentY + 3.5);
   
-  doc.text(`${malayalamPrize} ₹${formatCurrency(prize.prize_amount)}/-`, margin + 3, currentY + 4.5);
+  // Right: Prize amount
+  const amountText = `₹${formatCurrency(prize.prize_amount)}/-`;
+  const amountWidth = doc.getTextWidth(amountText);
+  doc.text(amountText, pageWidth - margin - amountWidth - 2, currentY + 3.5);
 
-  // Location on right if available
-  if (prize.tickets && prize.tickets[0] && prize.tickets[0].location) {
-    const location = `(${prize.tickets[0].location})`;
-    const locationWidth = doc.getTextWidth(location);
-    doc.text(location, pageWidth - margin - locationWidth - 3, currentY + 4.5);
-  }
-
-  currentY += 8;
-
-  // Number - larger and more readable
+  // Winning number
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
+  doc.setFontSize(20);
   const numberWidth = doc.getTextWidth(ticketNumber);
   const numberX = (pageWidth - numberWidth) / 2;
-  doc.text(ticketNumber, numberX, currentY + 7);
+  doc.text(ticketNumber, numberX, currentY + 10);
 
   // Box around number
   doc.setLineWidth(0.8);
-  doc.rect(numberX - 4, currentY + 1, numberWidth + 8, 9);
+  doc.rect(numberX - 2, currentY + 7, numberWidth + 4, 5);
 
-  currentY += 12;
+  // Location if available
+  if (prize.tickets && prize.tickets[0] && prize.tickets[0].location) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    const location = `(${prize.tickets[0].location.toUpperCase()})`;
+    const locationWidth = doc.getTextWidth(location);
+    doc.text(location, (pageWidth - locationWidth) / 2, currentY + 13);
+  }
 
-  // Separator line
-  doc.setLineWidth(0.6);
-  doc.line(margin, currentY, pageWidth - margin, currentY);
-
-  return currentY + 3;
+  return currentY + sectionHeight;
 };
 
-const addMultiPrizeImproved = (doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth) => {
-  // Prize header - more visible
-  doc.setFillColor(245, 245, 245);
-  doc.rect(margin, currentY, usableWidth, 6, 'F');
+const addCompactConsolationPrize = (doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth) => {
+  const cols = 10;
+  const rows = Math.ceil(ticketNumbers.length / cols);
+  const sectionHeight = 5 + rows * 4 + 1;
+
+  // Prize section border
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(0.5);
-  doc.rect(margin, currentY, usableWidth, 6);
+  doc.rect(margin, currentY, usableWidth, sectionHeight);
 
+  // Header background
+  doc.setFillColor(248, 248, 248);
+  doc.rect(margin, currentY, usableWidth, 5, 'F');
+
+  // Header border
+  doc.setLineWidth(0.5);
+  doc.line(margin, currentY + 5, pageWidth - margin, currentY + 5);
+
+  // Prize header
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
+  doc.setFontSize(9);
   doc.setTextColor(0, 0, 0);
   
-  const prizeLabel = getPrizeLabel(prize.prize_type);
-  const malayalamPrize = getmalayalamPrizeLabel(prize.prize_type);
+  // Left: Prize label
+  doc.text('Consolation Prize', margin + 2, currentY + 3.5);
   
-  doc.text(`${malayalamPrize} ${ticketNumbers.length} പേർക്ക് ₹${formatCurrency(prize.prize_amount)}/- വീതം`, margin + 2, currentY + 4);
+  // Right: Prize amount
+  const amountText = `₹${formatCurrency(prize.prize_amount)}/-`;
+  const amountWidth = doc.getTextWidth(amountText);
+  doc.text(amountText, pageWidth - margin - amountWidth - 2, currentY + 3.5);
 
-  currentY += 7;
-
-  // Determine grid layout based on number count
-  const numCount = ticketNumbers.length;
-  let cols = 10;
-  if (numCount > 120) cols = 25;
-  else if (numCount > 80) cols = 20;
-  else if (numCount > 40) cols = 15;
-  else if (numCount > 20) cols = 12;
-
-  const cellWidth = (usableWidth - 2) / cols;
-  const cellHeight = 5;
-
-  // Draw numbers in grid - larger font
+  // Consolation numbers in compact 10-column grid
+  const cellWidth = (usableWidth - 4) / cols;
+  const cellHeight = 4;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  
   for (let i = 0; i < ticketNumbers.length; i++) {
     const row = Math.floor(i / cols);
     const col = i % cols;
     
-    const cellX = margin + 1 + col * cellWidth;
-    const cellY = currentY + row * cellHeight;
+    const cellX = margin + 2 + col * cellWidth;
+    const cellY = currentY + 6 + row * cellHeight;
     
     // Cell border
     doc.setLineWidth(0.3);
     doc.rect(cellX, cellY, cellWidth, cellHeight);
     
-    // Number text - larger and more readable
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6);
+    // Number text
     const numText = ticketNumbers[i];
     const textWidth = doc.getTextWidth(numText);
     const textX = cellX + (cellWidth - textWidth) / 2;
-    const textY = cellY + cellHeight / 2 + 1.8;
+    const textY = cellY + cellHeight / 2 + 1.2;
     
     doc.text(numText, textX, textY);
   }
-  
-  const totalRows = Math.ceil(ticketNumbers.length / cols);
-  currentY += totalRows * cellHeight + 2;
 
-  // Separator line
-  doc.setLineWidth(0.5);
-  doc.line(margin, currentY, pageWidth - margin, currentY);
-
-  return currentY + 2;
+  return currentY + sectionHeight;
 };
 
-const addImprovedFooter = (doc, pageWidth, pageHeight, margin) => {
+const addCompactSinglePrize = (doc, prize, ticketNumber, currentY, margin, usableWidth, pageWidth) => {
+  const sectionHeight = 12;
+  
+  // Prize section border
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, currentY, usableWidth, sectionHeight);
+
+  // Prize header background
+  doc.setFillColor(248, 248, 248);
+  doc.rect(margin, currentY, usableWidth, 5, 'F');
+  
+  // Header border
+  doc.setLineWidth(0.5);
+  doc.line(margin, currentY + 5, pageWidth - margin, currentY + 5);
+
+  // Prize header text
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(0, 0, 0);
+  
+  const prizeLabel = prize.prize_type === '2nd' ? '2nd Prize' : '3rd Prize';
+  
+  // Left: Prize label
+  doc.text(prizeLabel, margin + 2, currentY + 3.5);
+  
+  // Right: Prize amount
+  const amountText = `₹${formatCurrency(prize.prize_amount)}/-`;
+  const amountWidth = doc.getTextWidth(amountText);
+  doc.text(amountText, pageWidth - margin - amountWidth - 2, currentY + 3.5);
+
+  // Winning number
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  const numberWidth = doc.getTextWidth(ticketNumber);
+  const numberX = (pageWidth - numberWidth) / 2;
+  doc.text(ticketNumber, numberX, currentY + 9);
+
+  // Box around number
+  doc.setLineWidth(0.8);
+  doc.rect(numberX - 2, currentY + 6.5, numberWidth + 4, 4);
+
+  // Location if available
+  if (prize.tickets && prize.tickets[0] && prize.tickets[0].location) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    const location = `(${prize.tickets[0].location.toUpperCase()})`;
+    const locationWidth = doc.getTextWidth(location);
+    doc.text(location, (pageWidth - locationWidth) / 2, currentY + 11.5);
+  }
+
+  return currentY + sectionHeight;
+};
+
+const addCompactMultiPrize = (doc, prize, ticketNumbers, currentY, margin, usableWidth, pageWidth) => {
+  const numCount = ticketNumbers.length;
+  
+  // Determine compact grid layout
+  let cols = 15;
+  if (numCount <= 6) cols = 6;
+  else if (numCount <= 100) cols = 15;
+  else cols = 20;
+  
+  const rows = Math.ceil(numCount / cols);
+  const sectionHeight = 5 + rows * 3.5 + 1;
+
+  // Prize section border
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, currentY, usableWidth, sectionHeight);
+
+  // Header background
+  doc.setFillColor(248, 248, 248);
+  doc.rect(margin, currentY, usableWidth, 5, 'F');
+
+  // Header border
+  doc.setLineWidth(0.5);
+  doc.line(margin, currentY + 5, pageWidth - margin, currentY + 5);
+
+  // Prize header
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(0, 0, 0);
+  
+  const prizeLabel = getPrizeLabel(prize.prize_type);
+  
+  // Left: Prize label
+  doc.text(prizeLabel, margin + 2, currentY + 3.5);
+  
+  // Right: Prize amount
+  const amountText = `₹${formatCurrency(prize.prize_amount)}/-`;
+  const amountWidth = doc.getTextWidth(amountText);
+  doc.text(amountText, pageWidth - margin - amountWidth - 2, currentY + 3.5);
+
+  // Numbers in compact grid
+  const cellWidth = (usableWidth - 4) / cols;
+  const cellHeight = 3.5;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  
+  for (let i = 0; i < ticketNumbers.length; i++) {
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    
+    const cellX = margin + 2 + col * cellWidth;
+    const cellY = currentY + 6 + row * cellHeight;
+    
+    // Cell border
+    doc.setLineWidth(0.2);
+    doc.rect(cellX, cellY, cellWidth, cellHeight);
+    
+    // Number text
+    const numText = ticketNumbers[i];
+    const textWidth = doc.getTextWidth(numText);
+    const textX = cellX + (cellWidth - textWidth) / 2;
+    const textY = cellY + cellHeight / 2 + 1;
+    
+    doc.text(numText, textX, textY);
+  }
+
+  return currentY + sectionHeight;
+};
+
+const addCompactFooter = (doc, pageWidth, pageHeight, margin) => {
   const footerY = pageHeight - margin - 8;
   
-  // Footer line
-  doc.setLineWidth(0.5);
-  doc.line(margin, footerY, pageWidth - margin, footerY);
-  
-  // Footer text - slightly larger
+  // Footer text
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(5);
-  doc.setTextColor(60, 60, 60);
+  doc.setFontSize(6);
+  doc.setTextColor(50, 50, 50);
   
   const footerText = MALAYALAM_FOOTER_TEXT.substring(0, 200);
   const maxLineWidth = pageWidth - 2 * margin - 4;
   const lines = doc.splitTextToSize(footerText, maxLineWidth);
   
   for (let i = 0; i < Math.min(lines.length, 2); i++) {
-    doc.text(lines[i], margin + 2, footerY + 3 + (i * 2));
+    doc.text(lines[i], margin + 2, footerY + 2 + (i * 2.5));
   }
 };
 
@@ -422,16 +446,4 @@ const sortPrizesByType = (prizes) => {
     
     return aIndex - bIndex;
   });
-};
-
-const getmalayalamPrizeLabel = (prizeType) => {
-  const type = prizeType.toLowerCase();
-  switch (type) {
-    case '4th': return 'നാലാം സമ്മാനം';
-    case '5th': return 'അഞ്ചാം സമ്മാനം';
-    case '6th': return 'ആറാം സമ്മാനം';
-    case '7th': return 'ഏഴാം സമ്മാനം';
-    case '8th': return 'എട്ടാം സമ്മാനം';
-    default: return `${prizeType} സമ്മാനം`;
-  }
 };
