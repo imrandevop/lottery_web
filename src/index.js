@@ -94,12 +94,12 @@ class ErrorBoundary extends React.Component {
 }
 
 // Performance monitoring
-if (process.env.NODE_ENV === 'production') {
-  // Report web vitals in production
-  import('./utils/reportWebVitals').then(({ default: reportWebVitals }) => {
-    reportWebVitals(console.log);
-  });
-}
+// if (process.env.NODE_ENV === 'production') {
+//   // Report web vitals in production
+//   import('./utils/reportWebVitals').then(({ default: reportWebVitals }) => {
+//     reportWebVitals(console.log);
+//   });
+// }
 
 // Create root and render app
 const root = ReactDOM.createRoot(document.getElementById('root'));
