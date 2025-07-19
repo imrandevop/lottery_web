@@ -1,6 +1,7 @@
 // components/PrizeResults.jsx
 import React from 'react';
 import { formatDate, formatCurrency } from '../utils/formatters';
+import { useLotteryPdf } from '../services/LotteryPdfService'; // Import the PDF service
 
 const PrizeResults = ({ 
   selectedLottery, 
@@ -12,6 +13,34 @@ const PrizeResults = ({
   onRetry, 
   onPrint 
 }) => {
+  const { downloadPdf, sharePdf } = useLotteryPdf();
+
+  // Handle PDF download
+  const handleDownloadPdf = async () => {
+    if (!resultData) return;
+    
+    try {
+      await downloadPdf(resultData);
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      // You could show a toast notification here
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
+  // Handle PDF sharing (with fallback to download)
+  const handleSharePdf = async () => {
+    if (!resultData) return;
+    
+    try {
+      await sharePdf(resultData);
+    } catch (error) {
+      console.error('Failed to share PDF:', error);
+      // Fallback to download if sharing fails
+      await handleDownloadPdf();
+    }
+  };
+
   if (!selectedLottery) {
     return (
       <div style={{
@@ -143,9 +172,57 @@ const PrizeResults = ({
           >
             🖨️ Print
           </button>
+
+          {/* PDF Download Button */}
+          <button
+            onClick={handleDownloadPdf}
+            style={{
+              backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flex: isMobile ? '1' : 'none',
+              justifyContent: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            📄 Download PDF
+          </button>
+
+          {/* Share PDF Button (only show if Web Share API is supported) */}
+          {navigator.share && (
+            <button
+              onClick={handleSharePdf}
+              style={{
+                backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '8px 12px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flex: isMobile ? '1' : 'none',
+                justifyContent: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              📤 Share PDF
+            </button>
+          )}
           
           <button
-            onClick={() => {/* Add download logic here */}}
+            onClick={() => {/* Add download app logic here */}}
             style={{
               backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
               color: 'white',
