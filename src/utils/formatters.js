@@ -26,5 +26,6 @@ export const getPrizeLabel = (prizeType) => {
   if (type.includes('6th')) return '6th Prize';
   if (type.includes('7th')) return '7th Prize';
   if (type.includes('8th')) return '8th Prize';
+  if (type.includes('9th')) return '9th Prize';
   return `${prizeType} Prize`;
 };
