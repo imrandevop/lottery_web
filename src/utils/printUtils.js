@@ -1,9 +1,8 @@
-// utils/printUtils.js - EXACT TARGET FORMAT REPLICA
+// utils/printUtils.js - FLUTTER STYLE HTML PRINT REPLICA
 import { formatDate, formatCurrency, getPrizeLabel } from './formatters';
-import { MALAYALAM_FOOTER_TEXT } from './constants';
 
 export const createPrintContent = (resultData, darkMode = false) => {
-  const printStyles = generateTargetFormatStyles();
+  const printStyles = generateFlutterStylePrintStyles();
   
   return `
     <!DOCTYPE html>
@@ -12,26 +11,31 @@ export const createPrintContent = (resultData, darkMode = false) => {
       <title>${resultData.lottery_name} - ${formatDate(resultData.date)}</title>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
       ${printStyles}
     </head>
     <body>
-      <div class="container">
-        ${createTargetHeader(resultData)}
-        ${createTargetContent(resultData)}
-        ${createTargetFooter()}
+      <div class="page-container">
+        ${createFlutterStyleWatermark()}
+        ${createFlutterStyleBorder()}
+        <div class="content-wrapper">
+          ${createFlutterStyleHeader(resultData)}
+          ${createFlutterStyleContent(resultData)}
+          ${createFlutterStyleFooter()}
+        </div>
       </div>
     </body>
     </html>
   `;
 };
 
-const generateTargetFormatStyles = () => {
+const generateFlutterStylePrintStyles = () => {
   return `
     <style>
       @media print {
         @page { 
           size: A4; 
-          margin: 4mm; 
+          margin: 0; 
         }
         
         * { 
@@ -41,155 +45,131 @@ const generateTargetFormatStyles = () => {
         }
         
         body {
-          font-family: Arial, sans-serif;
-          font-size: 7px;
-          line-height: 1.0;
+          font-family: 'Noto Sans', Arial, sans-serif;
+          font-size: 12px;
+          line-height: 1.2;
           color: black;
           background: white;
+          width: 210mm;
+          height: 297mm;
+          position: relative;
         }
         
-        .container {
+        .page-container {
           width: 100%;
-          border: 2px solid black;
-          background: white;
-          height: 289mm;
+          height: 100%;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .watermark {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 120px;
+          font-weight: bold;
+          color: rgba(200, 200, 200, 0.3);
+          z-index: 1;
+          pointer-events: none;
+          font-family: 'Noto Sans', Arial, sans-serif;
+        }
+        
+        .page-border {
+          position: absolute;
+          top: 15mm;
+          left: 15mm;
+          right: 15mm;
+          bottom: 15mm;
+          border: 1.5px solid black;
+          z-index: 2;
+        }
+        
+        .content-wrapper {
+          position: relative;
+          z-index: 3;
+          padding: 20mm;
+          height: 100%;
         }
         
         .header {
-          border-bottom: 2px solid black;
-          padding: 2mm;
-          background: white;
-          height: 8mm;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+          text-align: center;
+          margin-bottom: 8mm;
           font-weight: bold;
-          font-size: 10px;
         }
         
-        .header-center {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          text-align: center;
+        .header-main {
+          font-size: 16px;
           font-weight: bold;
+          margin-bottom: 6px;
+        }
+        
+        .header-details {
           font-size: 12px;
-        }
-        
-        .content {
-          padding: 0;
-        }
-        
-        .prize-row {
-          border-bottom: 1px solid black;
-          background: white;
-          min-height: 6mm;
+          font-weight: bold;
           display: flex;
-          flex-direction: column;
-        }
-        
-        .prize-header-row {
-          background: #f8f8f8;
-          padding: 1mm 2mm;
-          font-weight: bold;
-          font-size: 8px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          height: 4mm;
-          border-bottom: 1px solid black;
-        }
-        
-        .prize-content-row {
-          padding: 1mm;
-          background: white;
-        }
-        
-        .first-prize-content {
-          text-align: center;
-          padding: 2mm;
-        }
-        
-        .first-number {
-          font-size: 18px;
-          font-weight: bold;
-          border: 2px solid black;
-          padding: 2mm 4mm;
-          margin: 1mm auto;
-          display: inline-block;
-          background: white;
-        }
-        
-        .location {
-          font-size: 7px;
-          margin-top: 1mm;
-          font-weight: bold;
-        }
-        
-        .consolation-grid {
-          display: grid;
-          grid-template-columns: repeat(10, 1fr);
-          gap: 0.2mm;
-          margin: 0;
-          padding: 0.5mm;
-        }
-        
-        .consolation-cell {
-          border: 0.5px solid black;
-          text-align: center;
-          padding: 0.8mm;
-          font-weight: bold;
-          font-size: 6px;
-          background: white;
-          height: 3.5mm;
-          display: flex;
-          align-items: center;
           justify-content: center;
+          align-items: center;
+          gap: 20px;
         }
         
-        .single-prize-content {
-          text-align: center;
-          padding: 2mm;
+        .header-divider {
+          border-bottom: 1px solid #666;
+          margin: 8px 0;
         }
         
-        .single-number {
-          font-size: 14px;
+        .prize-section {
+          margin-bottom: 8px;
           font-weight: bold;
-          border: 2px solid black;
-          padding: 2mm 3mm;
-          margin: 1mm auto;
-          display: inline-block;
-          background: white;
         }
         
-        .multi-prize-grid {
+        .first-prize {
+          font-size: 13px;
+          margin-bottom: 8px;
+        }
+        
+        .consolation-prize {
+          font-size: 13px;
+          margin-bottom: 8px;
+        }
+        
+        .second-third-container {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 15px;
+        }
+        
+        .second-prize, .third-prize {
+          flex: 1;
+          font-size: 13px;
+          border: 1px solid #666;
+          padding: 8px;
+        }
+        
+        .lower-tier-prize {
+          margin-bottom: 8px;
+        }
+        
+        .lower-tier-header {
+          font-size: 13px;
+          font-weight: bold;
+          margin-bottom: 6px;
+        }
+        
+        .number-grid {
           display: grid;
-          gap: 0.1mm;
-          margin: 0;
-          padding: 0.5mm;
-        }
-        
-        .grid-15 { 
-          grid-template-columns: repeat(15, 1fr); 
-        }
-        .grid-6 { 
-          grid-template-columns: repeat(6, 1fr); 
-        }
-        .grid-20 { 
-          grid-template-columns: repeat(20, 1fr); 
-        }
-        .grid-25 { 
-          grid-template-columns: repeat(25, 1fr); 
+          grid-template-columns: repeat(15, 1fr);
+          gap: 0;
+          border: 1px solid #666;
         }
         
         .number-cell {
-          border: 0.3px solid black;
+          border: 0.3px solid #666;
           text-align: center;
-          padding: 0.5mm 0.2mm;
+          padding: 3px 2px;
+          font-size: 11px;
           font-weight: bold;
-          font-size: 5px;
-          background: white;
-          height: 3mm;
+          min-height: 18px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -197,148 +177,245 @@ const generateTargetFormatStyles = () => {
         
         .footer {
           position: absolute;
-          bottom: 2mm;
-          left: 2mm;
-          right: 2mm;
-          font-size: 5px;
-          text-align: justify;
-          color: #333;
-          line-height: 1.1;
-          font-weight: normal;
+          bottom: 20mm;
+          left: 20mm;
+          right: 20mm;
+          text-align: center;
+          font-size: 10px;
+          font-weight: bold;
+          color: #666;
+          border-top: 1px solid #999;
+          padding-top: 8px;
+        }
+        
+        .clickable-area {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 10;
+          cursor: pointer;
+        }
+        
+        /* Hide clickable area text */
+        .clickable-area a {
+          display: block;
+          width: 100%;
+          height: 100%;
+          text-decoration: none;
+          color: transparent;
         }
       }
     </style>
   `;
 };
 
-const createTargetHeader = (resultData) => {
+const createFlutterStyleWatermark = () => {
+  return `<div class="watermark">LOTTO</div>`;
+};
+
+const createFlutterStyleBorder = () => {
+  return `<div class="page-border"></div>`;
+};
+
+const createFlutterStyleHeader = (resultData) => {
+  const lotteryName = (resultData.lottery_name || 'SUVARNA KERALAM').toUpperCase();
+  const drawNumber = resultData.draw_number || 'SK-11';
+  const dateStr = formatDate(resultData.date);
+  
   return `
     <div class="header">
-      <div>${resultData.draw_number || 'SK-11'}</div>
-      <div class="header-center">${resultData.lottery_name || 'SUVARNA KERALAM'}</div>
-      <div>${formatDate(resultData.date)}</div>
+      <div class="header-main">KERALA LOTTERIES - RESULT BY LOTTO</div>
+      <div class="header-details">
+        <span>${lotteryName} NO: ${drawNumber}</span>
+        <span>Date: ${dateStr}</span>
+      </div>
+      <div class="header-divider"></div>
     </div>
   `;
 };
 
-const createTargetContent = (resultData) => {
+const createFlutterStyleContent = (resultData) => {
   if (!resultData.prizes) return '';
   
-  const sortedPrizes = sortPrizesByType(resultData.prizes);
-  let html = '<div class="content">';
+  const sortedPrizes = sortPrizesFlutterStyle(resultData.prizes);
+  let html = '';
   
-  sortedPrizes.forEach((prize) => {
-    const ticketNumbers = getTicketNumbers(prize);
-    const prizeType = prize.prize_type.toLowerCase();
-    
-    if (prizeType === '1st') {
-      html += createTargetFirstPrize(prize, ticketNumbers[0]);
-    } else if (prizeType === 'consolation') {
-      html += createTargetConsolationPrize(prize, ticketNumbers);
-    } else if (['2nd', '3rd'].includes(prizeType)) {
-      html += createTargetSinglePrize(prize, ticketNumbers[0]);
-    } else {
-      html += createTargetMultiPrize(prize, ticketNumbers);
-    }
+  // 1st Prize
+  const firstPrize = sortedPrizes.find(p => p.prize_type.toLowerCase() === '1st');
+  if (firstPrize) {
+    html += createFirstPrizeFlutterStyle(firstPrize);
+  }
+  
+  // Consolation Prize
+  const consolationPrize = sortedPrizes.find(p => p.prize_type.toLowerCase() === 'consolation');
+  if (consolationPrize) {
+    html += createConsolationPrizeFlutterStyle(consolationPrize);
+  }
+  
+  // 2nd and 3rd Prizes side by side
+  const secondPrize = sortedPrizes.find(p => p.prize_type.toLowerCase() === '2nd');
+  const thirdPrize = sortedPrizes.find(p => p.prize_type.toLowerCase() === '3rd');
+  if (secondPrize || thirdPrize) {
+    html += createSecondThirdPrizesFlutterStyle(secondPrize, thirdPrize);
+  }
+  
+  // Lower tier prizes
+  const lowerTierPrizes = sortedPrizes.filter(p => 
+    !['1st', '2nd', '3rd', 'consolation'].includes(p.prize_type.toLowerCase())
+  );
+  
+  lowerTierPrizes.forEach(prize => {
+    html += createLowerTierPrizeFlutterStyle(prize);
   });
+  
+  return html;
+};
+
+const createFirstPrizeFlutterStyle = (prize) => {
+  const ticketNumbers = getTicketNumbers(prize);
+  if (ticketNumbers.length === 0) return '';
+  
+  const ticketInfo = getTicketWithLocation(prize, ticketNumbers[0]);
+  const prizeAmountText = formatCurrency(prize.prize_amount);
+  
+  return `
+    <div class="prize-section first-prize">
+      1st Prize Rs: ₹${prizeAmountText}/- [1 Crore]/-: ${ticketNumbers[0]} (${ticketInfo.location})
+    </div>
+  `;
+};
+
+const createConsolationPrizeFlutterStyle = (prize) => {
+  const seriesNumbers = getConsolationSeries(prize);
+  if (seriesNumbers.length === 0) return '';
+  
+  const prizeAmountText = formatCurrency(prize.prize_amount);
+  const seriesText = seriesNumbers.join(' ');
+  
+  return `
+    <div class="prize-section consolation-prize">
+      Consolation Prize Rs: ₹${prizeAmountText}/-/-: ${seriesText}
+    </div>
+  `;
+};
+
+const createSecondThirdPrizesFlutterStyle = (secondPrize, thirdPrize) => {
+  let html = '<div class="second-third-container">';
+  
+  if (secondPrize) {
+    const ticketNumbers = getTicketNumbers(secondPrize);
+    if (ticketNumbers.length > 0) {
+      const ticketInfo = getTicketWithLocation(secondPrize, ticketNumbers[0]);
+      const prizeAmountText = formatCurrency(secondPrize.prize_amount);
+      
+      html += `
+        <div class="second-prize">
+          <div>2nd Prize Rs: ₹${prizeAmountText}/- [30 Lakhs]/-</div>
+          <div style="margin-top: 6px;">${ticketNumbers[0]} (${ticketInfo.location})</div>
+        </div>
+      `;
+    }
+  }
+  
+  if (thirdPrize) {
+    const ticketNumbers = getTicketNumbers(thirdPrize);
+    if (ticketNumbers.length > 0) {
+      const ticketInfo = getTicketWithLocation(thirdPrize, ticketNumbers[0]);
+      const prizeAmountText = formatCurrency(thirdPrize.prize_amount);
+      
+      html += `
+        <div class="third-prize">
+          <div>3rd Prize Rs: ₹${prizeAmountText}/- [5 Lakhs]/-</div>
+          <div style="margin-top: 6px;">${ticketNumbers[0]} (${ticketInfo.location})</div>
+        </div>
+      `;
+    }
+  }
   
   html += '</div>';
   return html;
 };
 
-const createTargetFirstPrize = (prize, ticketNumber) => {
-  return `
-    <div class="prize-row">
-      <div class="prize-header-row">
-        <span>1st Prize</span>
-        <span>₹${formatCurrency(prize.prize_amount)}/-</span>
-      </div>
-      <div class="prize-content-row">
-        <div class="first-prize-content">
-          <div class="first-number">${ticketNumber}</div>
-          ${prize.tickets && prize.tickets[0] && prize.tickets[0].location ? 
-            `<div class="location">(${prize.tickets[0].location.toUpperCase()})</div>` : ''}
-        </div>
-      </div>
-    </div>
-  `;
-};
-
-const createTargetConsolationPrize = (prize, ticketNumbers) => {
-  return `
-    <div class="prize-row">
-      <div class="prize-header-row">
-        <span>Consolation Prize</span>
-        <span>₹${formatCurrency(prize.prize_amount)}/-</span>
-      </div>
-      <div class="prize-content-row">
-        <div class="consolation-grid">
-          ${ticketNumbers.map(num => `<div class="consolation-cell">${num}</div>`).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-};
-
-const createTargetSinglePrize = (prize, ticketNumber) => {
-  const prizeLabel = prize.prize_type === '2nd' ? '2nd Prize' : '3rd Prize';
+const createLowerTierPrizeFlutterStyle = (prize) => {
+  const ticketNumbers = getTicketNumbers(prize);
+  if (ticketNumbers.length === 0) return '';
   
-  return `
-    <div class="prize-row">
-      <div class="prize-header-row">
-        <span>${prizeLabel}</span>
-        <span>₹${formatCurrency(prize.prize_amount)}/-</span>
-      </div>
-      <div class="prize-content-row">
-        <div class="single-prize-content">
-          <div class="single-number">${ticketNumber}</div>
-          ${prize.tickets && prize.tickets[0] && prize.tickets[0].location ? 
-            `<div class="location">(${prize.tickets[0].location.toUpperCase()})</div>` : ''}
-        </div>
-      </div>
-    </div>
-  `;
-};
-
-const createTargetMultiPrize = (prize, ticketNumbers) => {
   const prizeLabel = getPrizeLabel(prize.prize_type);
-  const numCount = ticketNumbers.length;
+  const prizeAmountText = formatCurrency(prize.prize_amount);
   
-  // Target format uses VERY tight grids to match target
-  let gridClass = 'grid-15';
-  if (numCount <= 6) gridClass = 'grid-6';
-  else if (numCount <= 20) gridClass = 'grid-15';
-  else if (numCount <= 75) gridClass = 'grid-15';
-  else if (numCount <= 100) gridClass = 'grid-20';
-  else gridClass = 'grid-25'; // For 9th prize with 140+ numbers
+  // Create 15-column grid
+  let gridHtml = '<div class="number-grid">';
+  
+  // Fill grid with numbers
+  for (let i = 0; i < ticketNumbers.length; i++) {
+    gridHtml += `<div class="number-cell">${ticketNumbers[i]}</div>`;
+  }
+  
+  // Fill remaining cells to complete the last row
+  const remainder = ticketNumbers.length % 15;
+  if (remainder !== 0) {
+    for (let i = remainder; i < 15; i++) {
+      gridHtml += '<div class="number-cell"></div>';
+    }
+  }
+  
+  gridHtml += '</div>';
   
   return `
-    <div class="prize-row">
-      <div class="prize-header-row">
-        <span>${prizeLabel}</span>
-        <span>₹${formatCurrency(prize.prize_amount)}/-</span>
-      </div>
-      <div class="prize-content-row">
-        <div class="multi-prize-grid ${gridClass}">
-          ${ticketNumbers.map(num => `<div class="number-cell">${num}</div>`).join('')}
-        </div>
-      </div>
+    <div class="prize-section lower-tier-prize">
+      <div class="lower-tier-header">${prizeLabel} – Rs: ₹${prizeAmountText}/-/-</div>
+      ${gridHtml}
     </div>
   `;
 };
 
+const createFlutterStyleFooter = () => {
+  return `
+    <div class="footer">
+      The prize winners are advised to verify the winning numbers with the results published in the Kerala Government Gazette and surrender the winning tickets within 90 days.
+    </div>
+    <div class="clickable-area">
+      <a href="https://www.lottokeralalotteries.com" target="_blank">&nbsp;</a>
+    </div>
+  `;
+};
+
+// Helper functions (same as PDF generator)
 const getTicketNumbers = (prize) => {
   if (prize.tickets) {
     return prize.tickets.map(t => t.ticket_number);
   }
   if (prize.ticket_numbers) {
-    return prize.ticket_numbers.split(' ').filter(n => n.trim());
+    return prize.ticket_numbers.split(/\s+/).filter(n => n.trim());
   }
   return [];
 };
 
-const sortPrizesByType = (prizes) => {
-  const order = ['1st', 'consolation', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+const getTicketWithLocation = (prize, ticketNumber) => {
+  if (prize.tickets) {
+    const ticket = prize.tickets.find(t => t.ticket_number === ticketNumber);
+    return {
+      number: ticketNumber,
+      location: ticket?.location?.toUpperCase() || 'N/A'
+    };
+  }
+  return {
+    number: ticketNumber,
+    location: 'N/A'
+  };
+};
+
+const getConsolationSeries = (prize) => {
+  const ticketNumbers = getTicketNumbers(prize);
+  // Extract series (first 2 characters) from ticket numbers
+  const series = [...new Set(ticketNumbers.map(num => num.substring(0, 2)))];
+  return series.sort();
+};
+
+const sortPrizesFlutterStyle = (prizes) => {
+  const order = ['1st', 'consolation', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
   
   return prizes.sort((a, b) => {
     const aIndex = order.indexOf(a.prize_type.toLowerCase());
@@ -350,12 +427,4 @@ const sortPrizesByType = (prizes) => {
     
     return aIndex - bIndex;
   });
-};
-
-const createTargetFooter = () => {
-  return `
-    <div class="footer">
-      ${MALAYALAM_FOOTER_TEXT.substring(0, 250)}...
-    </div>
-  `;
 };
