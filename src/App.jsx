@@ -8,6 +8,8 @@ import DownloadPopup from './components/DownloadPopup';
 import { useResponsive } from './hooks/useResponsive';
 import { useLotteryData } from './hooks/useLotteryData';
 import { useLotteryPdf } from './services/LotteryPdfService'; // Use the working PDF service
+import LotteryHeroSection from './components/LotteryHeroSection';
+
 
 const KeralaLotteryApp = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -96,6 +98,12 @@ const KeralaLotteryApp = () => {
           isMobile={isMobile}
           mobileMenuOpen={mobileMenuOpen}
           onMenuToggle={handleMobileMenuToggle}
+        />
+        <LotteryHeroSection 
+        darkMode={darkMode}
+        selectedLottery={selectedLottery}
+        resultData={resultData}
+        isMobile={isMobile}
         />
 
         <div style={{
