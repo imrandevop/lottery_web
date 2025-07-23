@@ -37,15 +37,16 @@ const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile })
 
   return (
     <section style={{
-      backgroundColor: darkMode ? '#1A1A1A' : '#FFF8F8',
+      backgroundColor: darkMode ? '#121212' : '#FFF1F2',
       padding: isMobile ? '24px 20px' : '32px 20px',
       background: darkMode 
-        ? 'linear-gradient(135deg, #1A1A1A 0%, #2D1B1B 50%, #1A1A1A 100%)'
-        : 'linear-gradient(135deg, #FFF8F8 0%, #FFE8E8 50%, #FFF1F1 100%)',
+        ? 'linear-gradient(135deg, #121212 0%, #1E1E1E 50%, #121212 100%)'
+        : 'linear-gradient(135deg, #FFF1F2 0%, #FFE8E8 50%, #FFF8F8 100%)',
       position: 'relative',
       overflow: 'hidden',
-      borderBottom: `1px solid ${darkMode ? '#333' : '#E0E0E0'}`,
-      margin: '0 auto'
+      borderBottom: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
+      margin: '0 auto',
+      transition: 'all 0.3s ease'
     }}>
 
 
@@ -116,7 +117,7 @@ const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile })
           opacity: 0.9,
           lineHeight: '1.5'
         }}>
-          Kerala Lottery Results Today Live • Kerala Lottery Winning Numbers • Kerala Lottery Official Result
+          Kerala State Official Lottery Results • Updated Live • Verified Results
         </p>
 
         {/* Additional decorative line */}
