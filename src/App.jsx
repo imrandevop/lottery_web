@@ -7,7 +7,6 @@ import Footer from './components/Footer';
 import DownloadPopup from './components/DownloadPopup';
 import { useResponsive } from './hooks/useResponsive';
 import { useLotteryData } from './hooks/useLotteryData';
-import { usePrintPDF } from './hooks/usePrintPDF';
 
 const KeralaLotteryApp = () => {
   const [darkMode, setDarkMode] = useState(false);
