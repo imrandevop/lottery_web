@@ -1,3 +1,4 @@
+// lottery-app\src\services\LotteryPdfService.js
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -5,7 +6,7 @@ class LotteryPdfService {
   constructor() {
     this.pageWidth = 210; // A4 width in mm
     this.pageHeight = 297; // A4 height in mm
-    this.margin = 20;
+    this.margin = 10; // REDUCED from 20 to 10 (half of current margin)
     this.contentWidth = this.pageWidth - (this.margin * 2);
     this.contentHeight = this.pageHeight - (this.margin * 2);
   }
@@ -112,7 +113,7 @@ class LotteryPdfService {
 
   // Add page border and watermark
   _addPageBorderAndWatermark(pdf) {
-    // Page border - thicker, black border
+    // Page border - thicker, black border (adjusted for new margin)
     pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(1.0);
     pdf.rect(this.margin - 5, this.margin - 5, this.contentWidth + 10, this.contentHeight + 10);
@@ -135,36 +136,41 @@ class LotteryPdfService {
     pdf.setTextColor(0, 0, 0);
   }
 
-  // Add header
+  // UPDATED HEADER - Match exact format from image
   _addHeader(pdf, result, startY) {
-    pdf.setFontSize(12);
+    pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
     
     let y = startY;
     
-    // Header row with all details
-    const title = 'KERALA LOTTERIES - RESULT BY LOTTO';
-    const lotteryName = `${this._sanitizeText(result.lottery_name.toUpperCase())} NO: ${this._sanitizeText(result.draw_number)}`;
-    const date = `Date: ${this._sanitizeText(result.date || result.formatted_date || '')}`;
+    // Create the exact header format from image:
+    // "KERALA LOTTERIES - RESULT BY LOTTO    KARUNYA PLUS NO: KN-581    Date: 17-07-2025"
     
-    // Calculate positions for three-column layout
-    const titleWidth = pdf.getTextWidth(title);
-    const lotteryWidth = pdf.getTextWidth(lotteryName);
-    const dateWidth = pdf.getTextWidth(date);
+    const leftText = 'KERALA LOTTERIES - RESULT BY LOTTO';
+    const centerText = `${this._sanitizeText(result.lottery_name.toUpperCase())} NO: ${this._sanitizeText(result.draw_number)}`;
+    const rightText = `Date: ${this._sanitizeText(result.date || result.formatted_date || '')}`;
     
+    // Calculate positions for exact three-column layout
     const leftX = this.margin;
-    const centerX = (this.pageWidth - lotteryWidth) / 2;
-    const rightX = this.pageWidth - this.margin - dateWidth;
     
-    pdf.text(title, leftX, y);
-    pdf.text(lotteryName, centerX, y);
-    pdf.text(date, rightX, y);
+    // Center text calculation
+    const centerTextWidth = pdf.getTextWidth(centerText);
+    const centerX = (this.pageWidth - centerTextWidth) / 2;
     
-    y += 8;
+    // Right text calculation  
+    const rightTextWidth = pdf.getTextWidth(rightText);
+    const rightX = this.pageWidth - this.margin - rightTextWidth;
     
-    // Divider line
+    // Draw all three parts on same line
+    pdf.text(leftText, leftX, y);
+    pdf.text(centerText, centerX, y);
+    pdf.text(rightText, rightX, y);
+    
+    y += 10; // Slightly more space after header
+    
+    // Thicker divider line to match image
     pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(0.5);
+    pdf.setLineWidth(1.0); // Thicker line
     pdf.line(this.margin, y, this.pageWidth - this.margin, y);
     
     return y + 8;
