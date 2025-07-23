@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile }) => {
+  // Debug logging to check if darkMode is being passed correctly
+  console.log('Hero Section - darkMode:', darkMode, typeof darkMode);
+  
+  // Force re-render when darkMode changes
+  useEffect(() => {
+    console.log('Hero Section darkMode changed to:', darkMode);
+  }, [darkMode]);
+  
+  // Force boolean conversion to ensure proper theme switching
+  const isDarkMode = Boolean(darkMode);
   // Get today's date in Indian format
   const getTodayDate = () => {
     const today = new Date();
@@ -36,18 +46,21 @@ const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile })
   };
 
   return (
-    <section style={{
-      backgroundColor: darkMode ? '#121212' : '#FFF1F2',
-      padding: isMobile ? '24px 20px' : '32px 20px',
-      background: darkMode 
-        ? 'linear-gradient(135deg, #121212 0%, #1E1E1E 50%, #121212 100%)'
-        : 'linear-gradient(135deg, #FFF1F2 0%, #FFE8E8 50%, #FFF8F8 100%)',
-      position: 'relative',
-      overflow: 'hidden',
-      borderBottom: `1px solid ${darkMode ? '#424242' : '#E0E0E0'}`,
-      margin: '0 auto',
-      transition: 'all 0.3s ease'
-    }}>
+    <section 
+      key={`hero-${isDarkMode ? 'dark' : 'light'}`} // Force re-render on theme change
+      style={{
+        backgroundColor: isDarkMode ? '#121212' : '#FFF1F2',
+        padding: isMobile ? '24px 20px' : '32px 20px',
+        background: isDarkMode 
+          ? 'linear-gradient(135deg, #121212 0%, #1E1E1E 50%, #121212 100%)'
+          : 'linear-gradient(135deg, #FFF1F2 0%, #FFE8E8 50%, #FFF8F8 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+        borderBottom: `1px solid ${isDarkMode ? '#424242' : '#E0E0E0'}`,
+        margin: '0 auto',
+        transition: 'all 0.3s ease'
+      }}
+    >
 
 
       <div style={{
@@ -59,18 +72,18 @@ const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile })
       }}>
         {/* Main Hero Title */}
         <h1 style={{
-          color: darkMode ? '#FF6B6B' : '#D32F2F',
+          color: isDarkMode ? '#FF6B6B' : '#D32F2F',
           fontSize: isMobile ? 'clamp(20px, 6vw, 28px)' : 'clamp(24px, 5vw, 40px)',
           fontWeight: 'bold',
           margin: '0 0 16px 0',
           lineHeight: '1.3',
-          background: darkMode 
+          background: isDarkMode 
             ? 'linear-gradient(135deg, #FF6B6B, #FF8A80, #FFAB91)'
             : 'linear-gradient(135deg, #D32F2F, #FF5252, #FF7043)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
-          textShadow: darkMode 
+          textShadow: isDarkMode 
             ? '0 4px 20px rgba(255, 82, 82, 0.3)'
             : '0 4px 20px rgba(211, 47, 47, 0.25)',
           letterSpacing: '-0.5px'
@@ -89,7 +102,7 @@ const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile })
             marginBottom: '20px'
           }}>
             <div style={{
-              backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
+              backgroundColor: isDarkMode ? '#FF5252' : '#D32F2F',
               color: 'white',
               padding: '8px 20px',
               borderRadius: '25px',
@@ -110,7 +123,7 @@ const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile })
 
         {/* Subtitle */}
         <p style={{
-          color: darkMode ? '#BDBDBD' : '#666',
+          color: isDarkMode ? '#BDBDBD' : '#666',
           fontSize: 'clamp(14px, 2.5vw, 18px)',
           margin: '0',
           fontWeight: '500',
@@ -124,7 +137,7 @@ const LotteryHeroSection = ({ darkMode, selectedLottery, resultData, isMobile })
         <div style={{
           width: '100px',
           height: '3px',
-          background: darkMode 
+          background: isDarkMode 
             ? 'linear-gradient(90deg, transparent, #FF5252, transparent)'
             : 'linear-gradient(90deg, transparent, #D32F2F, transparent)',
           margin: '20px auto 0',
