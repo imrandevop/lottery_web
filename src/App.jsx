@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import DownloadPopup from './components/DownloadPopup';
 import { useResponsive } from './hooks/useResponsive';
 import { useLotteryData } from './hooks/useLotteryData';
+import { useLotteryPdf } from './services/LotteryPdfService'; // Use the working PDF service
 
 const KeralaLotteryApp = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -25,7 +26,38 @@ const KeralaLotteryApp = () => {
     refetchLotteryList
   } = useLotteryData();
   
-  const { handlePrint } = usePrintPDF(resultData, darkMode, isMobile);
+  // Use the working PDF service instead of usePrintPDF
+  const { downloadPdf, sharePdf } = useLotteryPdf();
+
+  // Simple print handler that works for both mobile and desktop
+  const handlePrint = async () => {
+    if (!resultData) return;
+    
+    try {
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent);
+      
+      if (isMobileDevice) {
+        // For mobile: try to share, fallback to download
+        try {
+          await sharePdf(resultData);
+        } catch (shareError) {
+          console.log('Share failed, falling back to download');
+          await downloadPdf(resultData);
+        }
+      } else {
+        // For desktop: use browser print
+        window.print();
+      }
+    } catch (error) {
+      console.error('Print operation failed:', error);
+      // Last resort: try PDF download
+      try {
+        await downloadPdf(resultData);
+      } catch (pdfError) {
+        console.error('PDF generation also failed:', pdfError);
+      }
+    }
+  };
 
   // Download popup timer
   useEffect(() => {
