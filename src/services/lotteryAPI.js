@@ -1,5 +1,9 @@
 // services/lotteryAPI.js
-const API_BASE_URL = 'https://sea-lion-app-begbw.ondigitalocean.app/api/results';
+// ...existing code...
+import config from '../config/environment';
+
+const API_BASE_URL = `${config.API_BASE_URL}/results`;
+// ...existing code...
 
 export const fetchLotteryList = async () => {
   const response = await fetch(`${API_BASE_URL}/results/`);
