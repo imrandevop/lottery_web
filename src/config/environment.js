@@ -1,7 +1,7 @@
 // config/environment.js
 const config = {
   development: {
-    API_BASE_URL: 'http://localhost:3001/api',
+    API_BASE_URL: 'http://localhost:8000/api',
     LOG_LEVEL: 'debug',
     ENABLE_MOCK_DATA: true
   },
@@ -11,7 +11,7 @@ const config = {
     ENABLE_MOCK_DATA: false
   },
   test: {
-    API_BASE_URL: 'http://localhost:3001/api',
+    API_BASE_URL: 'http://localhost:8000/api',
     LOG_LEVEL: 'silent',
     ENABLE_MOCK_DATA: true
   }

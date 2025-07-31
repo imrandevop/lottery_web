@@ -151,27 +151,7 @@ const PrizeResults = ({
           marginBottom: '8px',
           flexWrap: 'wrap'
         }}>
-          <button
-            onClick={onPrint}
-            style={{
-              backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '8px 12px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              flex: isMobile ? '1' : 'none',
-              justifyContent: 'center'
-            }}
-          >
-            🖨️ Print
-          </button>
+          {/* Print button removed */}
 
           {/* PDF Download Button */}
           <button
@@ -196,30 +176,7 @@ const PrizeResults = ({
             📄 Download PDF
           </button>
 
-          {/* Share PDF Button (only show if Web Share API is supported) */}
-          {navigator.share && (
-            <button
-              onClick={handleSharePdf}
-              style={{
-                backgroundColor: darkMode ? '#FF5252' : '#D32F2F',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flex: isMobile ? '1' : 'none',
-                justifyContent: 'center',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              📤 Share PDF
-            </button>
-          )}
+          {/* Share PDF button removed */}
           
           <button
             onClick={() => {/* Add download app logic here */}}
