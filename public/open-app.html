@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Open App</title>
+    <script>
+      window.onload = function () {
+        var appLink = "app://yourdomain.com/results";
+        var playStoreLink =
+          "https://play.google.com/store/apps/details?id=app.solidapps.lotto";
+
+        // Try to open app
+        window.location = appLink;
+
+        // Fallback after 1 second
+        setTimeout(function () {
+          window.location = playStoreLink;
+        }, 1000);
+      };
+    </script>
+  </head>
+  <body>
+    <h2>Opening Lotto App...</h2>
+  </body>
+</html>
