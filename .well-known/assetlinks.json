@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.solidapps.lotto",
+      "sha256_cert_fingerprints": [
+        "39:9E:6E:B2:FC:8E:AB:9A:DB:EF:33:3E:9E:84:DF:EB:EC:3B:66:99:B0:3E:09:90:88:77:A3:A9:F2:02:0B:FA"
+      ]
+    }
+  }
+]
