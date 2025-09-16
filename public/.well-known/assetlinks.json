@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "app.solidapps.lotto",
       "sha256_cert_fingerprints": [
-        "39:9E:6E:B2:FC:8E:AB:9A:DB:EF:33:3E:9E:84:DF:EB:EC:3B:66:99:B0:3E:09:90:88:77:A3:A9:F2:02:0B:FA"
+        "39:9E:6E:B2:FC:8E:AB:9A:DB:EF:33:3E:9E:84:DF:EB:EC:3B:66:99:B0:3E:09:90:88:77:A3:A9:F2:02:0B:FA",
+        "DD:0C:38:88:C5:49:F5:B2:14:CA:17:FB:84:4A:58:3E:4F:31:78:6F:E3:62:0F:AB:3B:02:C9:34:48:BA:1E:41"
       ]
     }
   }
