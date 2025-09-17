@@ -100,6 +100,11 @@
            class="fallback-btn" id="playstore-btn">
           📱 Download App
         </a>
+
+        <!-- Debug info (remove in production) -->
+        <div style="margin-top: 20px; font-size: 12px; opacity: 0.7;" id="debug-info">
+          Debug: Check browser console for logs
+        </div>
       </div>
     </div>
 
@@ -109,8 +114,8 @@
         const config = {
           appScheme: "app://results",
           playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
-          fallbackDelay: 2500, // Increased for better UX
-          visibilityDelay: 1000 // Delay before checking visibility
+          fallbackDelay: 3000, // Increased for mobile browsers
+          visibilityDelay: 300 // Reduced for faster response
         };
 
         let redirected = false;
@@ -125,31 +130,42 @@
         function detectAppInstallation() {
           return new Promise((resolve) => {
             let resolved = false;
+            let appOpenAttempted = false;
 
             // Method 1: Page visibility change (most reliable)
             const visibilityHandler = () => {
-              if (!resolved && document.hidden) {
+              if (!resolved && document.hidden && appOpenAttempted) {
                 resolved = true;
+                cleanup();
                 resolve(true); // App likely opened
               }
             };
 
-            // Method 2: Window blur event
+            // Method 2: Window blur event (backup for older browsers)
             const blurHandler = () => {
-              if (!resolved) {
-                resolved = true;
-                resolve(true); // App likely opened
+              if (!resolved && appOpenAttempted) {
+                setTimeout(() => {
+                  if (!resolved) {
+                    resolved = true;
+                    cleanup();
+                    resolve(true); // App likely opened
+                  }
+                }, 300);
               }
             };
 
-            // Method 3: Focus change with delay
+            // Method 3: Page focus return detection
             const focusHandler = () => {
-              setTimeout(() => {
-                if (!resolved && document.hasFocus()) {
-                  resolved = true;
-                  resolve(false); // Still on web page
-                }
-              }, 300);
+              if (!resolved && appOpenAttempted) {
+                // If page regains focus quickly, app probably didn't open
+                setTimeout(() => {
+                  if (!resolved && document.hasFocus()) {
+                    resolved = true;
+                    cleanup();
+                    resolve(false); // Still on web page
+                  }
+                }, 100);
+              }
             };
 
             // Add event listeners
@@ -164,50 +180,68 @@
               window.removeEventListener('focus', focusHandler);
             };
 
-            // Fallback timeout
+            // Mandatory fallback timeout - always triggers
             setTimeout(() => {
               if (!resolved) {
                 resolved = true;
                 cleanup();
                 resolve(false); // Assume app not installed
+                console.log('Fallback timeout triggered');
               }
             }, config.fallbackDelay);
 
-            // Try to open the app after a short delay
+            // Try to open the app immediately
             setTimeout(() => {
               if (!resolved) {
+                appOpenAttempted = true;
                 try {
-                  // Try multiple methods for better compatibility
-                  if (window.location.protocol === 'https:') {
-                    // For HTTPS, try both methods
-                    window.location.href = config.appScheme;
-                    // Fallback for some browsers
-                    setTimeout(() => {
-                      if (!resolved) {
-                        const iframe = document.createElement('iframe');
-                        iframe.style.display = 'none';
-                        iframe.src = config.appScheme;
-                        document.body.appendChild(iframe);
-                        setTimeout(() => document.body.removeChild(iframe), 100);
-                      }
-                    }, 100);
-                  } else {
-                    // For HTTP, use iframe method
+                  console.log('Attempting to open app...');
+
+                  // Mobile-optimized approach
+                  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
+
+                  if (isMobile) {
+                    // For mobile, try iframe first then location
                     const iframe = document.createElement('iframe');
                     iframe.style.display = 'none';
+                    iframe.style.width = '1px';
+                    iframe.style.height = '1px';
                     iframe.src = config.appScheme;
+
+                    // Handle iframe load errors
+                    iframe.onerror = () => {
+                      console.log('Iframe failed, trying location.href');
+                      window.location.href = config.appScheme;
+                    };
+
                     document.body.appendChild(iframe);
+
+                    // Remove iframe after attempt
                     setTimeout(() => {
                       if (document.body.contains(iframe)) {
                         document.body.removeChild(iframe);
                       }
-                    }, 100);
+                    }, 1000);
+
+                    // Backup method after short delay
+                    setTimeout(() => {
+                      if (!resolved) {
+                        window.location.href = config.appScheme;
+                      }
+                    }, 500);
+
+                  } else {
+                    // For desktop browsers
+                    window.location.href = config.appScheme;
                   }
+
                 } catch (e) {
                   console.log('Error opening app:', e);
+                  // Even on error, mark as attempted
+                  appOpenAttempted = true;
                 }
               }
-            }, config.visibilityDelay);
+            }, 300); // Reduced delay for faster response
           });
         }
 
@@ -259,6 +293,14 @@
             }
             // If app opened successfully, user won't see the fallback
           });
+
+          // Aggressive fallback - always show fallback after 4 seconds as backup
+          setTimeout(() => {
+            if (!redirected) {
+              console.log('Aggressive fallback triggered');
+              showFallback();
+            }
+          }, 4000);
         });
 
         // Handle page visibility for better UX
