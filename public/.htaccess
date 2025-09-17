@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Handle /app/results route
+RewriteRule ^app/results/?$ /app/results.html [L]
+RewriteRule ^app/(.*)$ /app/results.html [L]
+
+# Handle React Router (SPA)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
