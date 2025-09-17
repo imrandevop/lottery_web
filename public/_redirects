@@ -1,0 +1,3 @@
+# Netlify/Vercel redirects
+/app/results /open-app.html 200
+/app/* /open-app.html 200
