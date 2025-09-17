@@ -108,7 +108,7 @@
         // Configuration
         const config = {
           playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
-          fallbackDelay: 2500
+          fallbackDelay: 2000
         };
 
         let redirected = false;
@@ -118,87 +118,12 @@
         const fallbackState = document.getElementById('fallback-state');
         const playstoreBtn = document.getElementById('playstore-btn');
 
-        // Detect mobile platform
-        const isAndroid = /android/i.test(navigator.userAgent);
-        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-
-        // Create the proper deep link URL
-        function createAppLink() {
-          if (isAndroid) {
-            // Android Intent URL with automatic fallback
-            return `intent://results#Intent;scheme=app;package=app.solidapps.lotto;S.browser_fallback_url=${encodeURIComponent(config.playStoreUrl)};end`;
-          } else if (isIOS) {
-            // iOS Universal Link (if you have one) or regular scheme
-            return "app://results";
-          } else {
-            // Desktop - direct to Play Store
-            return config.playStoreUrl;
-          }
-        }
-
-        // Attempt to open app with proper fallback
-        function attemptAppOpen() {
-          const appUrl = createAppLink();
-
-          console.log('Attempting to open:', appUrl);
-
-          if (isAndroid) {
-            // Android Intent URLs handle fallback automatically
-            window.location.href = appUrl;
-
-            // Set a timeout to show manual fallback if needed
-            setTimeout(() => {
-              if (!redirected) {
-                showFallback();
-              }
-            }, config.fallbackDelay);
-
-          } else if (isIOS) {
-            // iOS approach with visibility detection
-            let resolved = false;
-
-            // Listen for page visibility change
-            const visibilityHandler = () => {
-              if (document.hidden && !resolved) {
-                resolved = true;
-                // App opened successfully
-                document.removeEventListener('visibilitychange', visibilityHandler);
-              }
-            };
-
-            document.addEventListener('visibilitychange', visibilityHandler);
-
-            // Try to open app
-            window.location.href = appUrl;
-
-            // Fallback timeout
-            setTimeout(() => {
-              if (!resolved) {
-                resolved = true;
-                document.removeEventListener('visibilitychange', visibilityHandler);
-                showFallback();
-              }
-            }, config.fallbackDelay);
-
-          } else {
-            // Desktop - directly show Play Store
-            window.location.href = appUrl;
-          }
-        }
-
-        // Show fallback UI
-        function showFallback() {
-          if (redirected) return;
-
-          console.log('Showing fallback UI');
-          loadingState.classList.add('hidden');
-          fallbackState.classList.remove('hidden');
-        }
-
         // Redirect to Play Store
         function redirectToPlayStore() {
           if (redirected) return;
           redirected = true;
+
+          console.log('Redirecting to Play Store');
 
           // Add tracking if available
           try {
@@ -213,30 +138,99 @@
           window.location.href = config.playStoreUrl;
         }
 
+        // Show fallback UI
+        function showFallback() {
+          if (redirected) return;
+
+          console.log('Showing fallback UI');
+          loadingState.classList.add('hidden');
+          fallbackState.classList.remove('hidden');
+        }
+
+        // Try to open app safely
+        function attemptAppOpen() {
+          console.log('Attempting to open app...');
+
+          // Try to open app - this may cause 404
+          try {
+            window.location.href = 'app://results';
+          } catch (e) {
+            console.log('App opening failed:', e);
+            // If immediate error, show fallback
+            setTimeout(() => {
+              if (!redirected) {
+                showFallback();
+              }
+            }, 100);
+          }
+
+          // Set fallback timer
+          setTimeout(() => {
+            if (!redirected) {
+              console.log('Fallback timer triggered');
+              showFallback();
+            }
+          }, config.fallbackDelay);
+        }
+
+        // CATCH 404 ERRORS AND REDIRECT TO PLAY STORE
+        window.addEventListener('error', function(e) {
+          console.log('Error detected:', e);
+          if (!redirected) {
+            console.log('404 or navigation error - redirecting to Play Store');
+            redirectToPlayStore();
+          }
+        });
+
+        // Catch unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+          console.log('Promise rejection detected:', e);
+          if (!redirected) {
+            console.log('Navigation failed - redirecting to Play Store');
+            redirectToPlayStore();
+          }
+        });
+
+        // Catch navigation errors (most important for 404)
+        window.addEventListener('beforeunload', function(e) {
+          // If we're leaving the page due to navigation failure, redirect to Play Store
+          if (!redirected && !document.hidden) {
+            setTimeout(() => {
+              if (!redirected) {
+                console.log('Navigation interrupted - likely 404');
+                redirectToPlayStore();
+              }
+            }, 100);
+          }
+        });
+
         // Handle Play Store button click
         playstoreBtn.addEventListener('click', function(e) {
           e.preventDefault();
           redirectToPlayStore();
         });
 
-        // Main execution
-        window.addEventListener('load', function() {
-          // Small delay to ensure page is fully loaded
-          setTimeout(() => {
-            attemptAppOpen();
-          }, 500);
-        });
-
-        // Handle page becoming visible again (user returned from attempt)
+        // DETECT PAGE VISIBILITY (app opened successfully)
         document.addEventListener('visibilitychange', function() {
-          if (!document.hidden && !redirected) {
-            // User came back to page, show fallback
+          if (document.hidden) {
+            // App likely opened, mark as redirected to prevent fallbacks
+            redirected = true;
+            console.log('Page hidden - app likely opened');
+          } else if (!redirected) {
+            // User came back, show fallback
             setTimeout(() => {
               if (!redirected) {
                 showFallback();
               }
-            }, 1000);
+            }, 500);
           }
+        });
+
+        // Main execution
+        window.addEventListener('load', function() {
+          setTimeout(() => {
+            attemptAppOpen();
+          }, 500);
         });
 
       })();
