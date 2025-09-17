@@ -114,8 +114,8 @@
         const config = {
           appScheme: "app://results",
           playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
-          fallbackDelay: 3000, // Increased for mobile browsers
-          visibilityDelay: 300 // Reduced for faster response
+          fallbackDelay: 2000, // Reduced - faster fallback for mobile
+          visibilityDelay: 500 // Give a bit more time for app to respond
         };
 
         let redirected = false;
@@ -201,38 +201,51 @@
                   const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
 
                   if (isMobile) {
-                    // For mobile, try iframe first then location
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.style.width = '1px';
-                    iframe.style.height = '1px';
-                    iframe.src = config.appScheme;
+                    // Mobile-safe approach: Only use iframe method to avoid 404
+                    try {
+                      const iframe = document.createElement('iframe');
+                      iframe.style.display = 'none';
+                      iframe.style.width = '1px';
+                      iframe.style.height = '1px';
+                      iframe.style.border = 'none';
+                      iframe.src = config.appScheme;
 
-                    // Handle iframe load errors
-                    iframe.onerror = () => {
-                      console.log('Iframe failed, trying location.href');
-                      window.location.href = config.appScheme;
-                    };
+                      // Prevent iframe errors from showing
+                      iframe.onerror = () => {
+                        console.log('App not installed - iframe method failed silently');
+                      };
 
-                    document.body.appendChild(iframe);
+                      // Add iframe
+                      document.body.appendChild(iframe);
 
-                    // Remove iframe after attempt
-                    setTimeout(() => {
-                      if (document.body.contains(iframe)) {
-                        document.body.removeChild(iframe);
-                      }
-                    }, 1000);
+                      // Remove iframe quickly to prevent any navigation issues
+                      setTimeout(() => {
+                        try {
+                          if (document.body.contains(iframe)) {
+                            document.body.removeChild(iframe);
+                          }
+                        } catch (e) {
+                          console.log('Iframe cleanup error:', e);
+                        }
+                      }, 100);
 
-                    // Backup method after short delay
-                    setTimeout(() => {
-                      if (!resolved) {
-                        window.location.href = config.appScheme;
-                      }
-                    }, 500);
+                    } catch (e) {
+                      console.log('Mobile app opening failed:', e);
+                    }
 
                   } else {
-                    // For desktop browsers
-                    window.location.href = config.appScheme;
+                    // For desktop browsers - safer approach
+                    try {
+                      // Create temporary anchor element
+                      const link = document.createElement('a');
+                      link.href = config.appScheme;
+                      link.style.display = 'none';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    } catch (e) {
+                      console.log('Desktop app opening failed:', e);
+                    }
                   }
 
                 } catch (e) {
@@ -285,6 +298,22 @@
           redirectToPlayStore();
         });
 
+        // Handle navigation errors (like 404 from app schemes)
+        window.addEventListener('error', function(e) {
+          console.log('Page error detected, showing fallback');
+          if (!redirected) {
+            showFallback();
+          }
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+          console.log('Promise rejection detected, showing fallback');
+          if (!redirected) {
+            showFallback();
+          }
+        });
+
         // Main execution
         window.addEventListener('load', function() {
           detectAppInstallation().then(function(appOpened) {
@@ -294,13 +323,13 @@
             // If app opened successfully, user won't see the fallback
           });
 
-          // Aggressive fallback - always show fallback after 4 seconds as backup
+          // Aggressive fallback - always show fallback after 3 seconds as backup
           setTimeout(() => {
             if (!redirected) {
               console.log('Aggressive fallback triggered');
               showFallback();
             }
-          }, 4000);
+          }, 3000);
         });
 
         // Handle page visibility for better UX
