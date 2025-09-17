@@ -1,60 +1,93 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const AppLinkHandler = ({ targetPath = '/results' }) => {
   const [showFallback, setShowFallback] = useState(false);
   const [attempting, setAttempting] = useState(true);
+  const [error, setError] = useState(null);
+  const location = useLocation();
 
-  useEffect(() => {
-    const config = {
-      appScheme: "app://results",
-      playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
-      fallbackDelay: 2000
+  const config = {
+    appScheme: "app://results",
+    playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
+    fallbackDelay: 2000,
+    iosAppStoreUrl: "https://apps.apple.com/app/kerala-lotto/id123456789" // Add iOS support
+  };
+
+  const detectDevice = useCallback(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return {
+      isAndroid: /android/.test(userAgent),
+      isIOS: /iphone|ipad|ipod/.test(userAgent),
+      isMobile: /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent)
     };
+  }, []);
 
-    let resolved = false;
+  const attemptAppOpen = useCallback(() => {
+    const device = detectDevice();
 
-    // Try to open app
-    const attemptAppOpen = () => {
-      const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
-
-      if (isMobile) {
-        // Create hidden iframe for mobile
+    try {
+      if (device.isMobile) {
+        // Create hidden iframe for mobile app opening
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
+        iframe.style.position = 'absolute';
+        iframe.style.left = '-1000px';
         iframe.src = config.appScheme;
 
         iframe.onerror = () => {
-          console.log('App not installed');
+          console.log('App not installed or failed to open');
+          setError('Unable to open app');
         };
 
         document.body.appendChild(iframe);
 
+        // Clean up iframe after attempt
         setTimeout(() => {
           if (document.body.contains(iframe)) {
             document.body.removeChild(iframe);
           }
         }, 100);
+      } else {
+        // Desktop fallback - show download options
+        setShowFallback(true);
+        setAttempting(false);
       }
-    };
+    } catch (err) {
+      console.error('Error attempting to open app:', err);
+      setError('Failed to open app');
+      setShowFallback(true);
+      setAttempting(false);
+    }
+  }, [config.appScheme, detectDevice]);
+
+  useEffect(() => {
+    let resolved = false;
+    let visibilityHandler;
+    let timeoutId;
 
     // Detection logic
     const detectApp = () => {
-      const visibilityHandler = () => {
+      visibilityHandler = () => {
         if (document.hidden && !resolved) {
           resolved = true;
-          // App opened, stay on loading
+          // App opened successfully, user switched to app
+          console.log('App opened successfully');
         }
       };
 
+      // Listen for visibility changes to detect app opening
       document.addEventListener('visibilitychange', visibilityHandler);
 
       // Fallback timeout
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         if (!resolved) {
           resolved = true;
           setAttempting(false);
           setShowFallback(true);
-          document.removeEventListener('visibilitychange', visibilityHandler);
+          if (visibilityHandler) {
+            document.removeEventListener('visibilitychange', visibilityHandler);
+          }
         }
       }, config.fallbackDelay);
 
@@ -64,14 +97,37 @@ const AppLinkHandler = ({ targetPath = '/results' }) => {
 
     detectApp();
 
+    // Cleanup function
     return () => {
       resolved = true;
+      if (visibilityHandler) {
+        document.removeEventListener('visibilitychange', visibilityHandler);
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
-  }, []);
+  }, [attemptAppOpen, config.fallbackDelay]);
 
-  const handlePlayStoreClick = () => {
-    window.open('https://play.google.com/store/apps/details?id=app.solidapps.lotto', '_blank');
-  };
+  const handleStoreClick = useCallback(() => {
+    const device = detectDevice();
+
+    if (device.isAndroid) {
+      window.open(config.playStoreUrl, '_blank');
+    } else if (device.isIOS) {
+      window.open(config.iosAppStoreUrl, '_blank');
+    } else {
+      // Desktop - show both options or default to Play Store
+      window.open(config.playStoreUrl, '_blank');
+    }
+  }, [config.playStoreUrl, config.iosAppStoreUrl, detectDevice]);
+
+  const handleRetry = useCallback(() => {
+    setShowFallback(false);
+    setAttempting(true);
+    setError(null);
+    attemptAppOpen();
+  }, [attemptAppOpen]);
 
   if (attempting && !showFallback) {
     return (
@@ -116,6 +172,8 @@ const AppLinkHandler = ({ targetPath = '/results' }) => {
   }
 
   if (showFallback) {
+    const device = detectDevice();
+
     return (
       <div style={{
         minHeight: '100vh',
@@ -132,29 +190,77 @@ const AppLinkHandler = ({ targetPath = '/results' }) => {
           padding: '30px',
           background: 'rgba(255, 255, 255, 0.1)',
           borderRadius: '20px',
-          backdropFilter: 'blur(10px)'
+          backdropFilter: 'blur(10px)',
+          maxWidth: '400px',
+          margin: '0 20px'
         }}>
           <div style={{ fontSize: '48px', marginBottom: '20px' }}>🎰</div>
           <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Kerala Lotto App</h1>
-          <p style={{ marginBottom: '20px' }}>App not installed? Download from Play Store</p>
-          <button
-            onClick={handlePlayStoreClick}
-            style={{
-              background: 'white',
-              color: '#D32F2F',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '25px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            📱 Download App
-          </button>
+
+          {error && (
+            <p style={{
+              color: '#ffeb3b',
+              marginBottom: '15px',
+              fontSize: '14px'
+            }}>
+              {error}
+            </p>
+          )}
+
+          <p style={{ marginBottom: '20px' }}>
+            {device.isMobile
+              ? 'App not installed? Download from the store'
+              : 'Download our mobile app for the best experience'
+            }
+          </p>
+
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={handleStoreClick}
+              style={{
+                background: 'white',
+                color: '#D32F2F',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: '25px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              {device.isIOS ? '🍎 App Store' :
+               device.isAndroid ? '📱 Play Store' : '📱 Download'}
+            </button>
+
+            {device.isMobile && (
+              <button
+                onClick={handleRetry}
+                style={{
+                  background: 'transparent',
+                  color: 'white',
+                  border: '2px solid rgba(255, 255, 255, 0.5)',
+                  padding: '10px 20px',
+                  borderRadius: '25px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Try Again
+              </button>
+            )}
+          </div>
+
+          <p style={{
+            fontSize: '12px',
+            marginTop: '20px',
+            opacity: '0.8'
+          }}>
+            Redirecting to {location.pathname}
+          </p>
         </div>
       </div>
     );

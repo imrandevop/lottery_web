@@ -59,178 +59,59 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
-
-      .fallback-btn {
-        background: white;
-        color: #D32F2F;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 20px;
-        transition: transform 0.2s;
-      }
-
-      .fallback-btn:hover {
-        transform: translateY(-2px);
-      }
-
-      .hidden {
-        display: none;
-      }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="logo">🎰</div>
       <h1>Kerala Lotto App</h1>
-
-      <div id="loading-state">
-        <div class="spinner"></div>
-        <div class="status">Opening app...</div>
-      </div>
-
-      <div id="fallback-state" class="hidden">
-        <div class="status">App not installed? Download from Play Store</div>
-        <a href="https://play.google.com/store/apps/details?id=app.solidapps.lotto"
-           class="fallback-btn" id="playstore-btn">
-          📱 Download App
-        </a>
-      </div>
+      <div class="spinner"></div>
+      <div class="status">Opening app...</div>
     </div>
 
     <script>
       (function() {
-        // Configuration
-        const config = {
-          playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
-          fallbackDelay: 2000
-        };
+        const APP_URL = 'https://lottokeralalotteries.com/app/results';
+        const FALLBACK_URL = 'https://lottokeralalotteries.com/app/lottery?id=684feeae-1225-470e-9764-6669ecf0e714';
+        const FALLBACK_DELAY = 3000;
 
         let redirected = false;
 
-        // DOM elements
-        const loadingState = document.getElementById('loading-state');
-        const fallbackState = document.getElementById('fallback-state');
-        const playstoreBtn = document.getElementById('playstore-btn');
-
-        // Redirect to Play Store
-        function redirectToPlayStore() {
+        function redirectToFallback() {
           if (redirected) return;
           redirected = true;
-
-          console.log('Redirecting to Play Store');
-
-          // Add tracking if available
-          try {
-            if (typeof gtag !== 'undefined') {
-              gtag('event', 'app_fallback', {
-                'event_category': 'deep_link',
-                'event_label': 'playstore_redirect'
-              });
-            }
-          } catch (e) {}
-
-          window.location.href = config.playStoreUrl;
+          console.log('Redirecting to fallback URL');
+          window.location.href = FALLBACK_URL;
         }
 
-        // Show fallback UI
-        function showFallback() {
-          if (redirected) return;
-
-          console.log('Showing fallback UI');
-          loadingState.classList.add('hidden');
-          fallbackState.classList.remove('hidden');
-        }
-
-        // Try to open app safely
         function attemptAppOpen() {
           console.log('Attempting to open app...');
 
-          // Try to open app - this may cause 404
           try {
-            window.location.href = 'app://results';
+            window.location.href = APP_URL;
           } catch (e) {
             console.log('App opening failed:', e);
-            // If immediate error, show fallback
-            setTimeout(() => {
-              if (!redirected) {
-                showFallback();
-              }
-            }, 100);
+            redirectToFallback();
+            return;
           }
 
-          // Set fallback timer
           setTimeout(() => {
             if (!redirected) {
-              console.log('Fallback timer triggered');
-              showFallback();
+              console.log('App not detected, redirecting to fallback');
+              redirectToFallback();
             }
-          }, config.fallbackDelay);
+          }, FALLBACK_DELAY);
         }
 
-        // CATCH 404 ERRORS AND REDIRECT TO PLAY STORE
-        window.addEventListener('error', function(e) {
-          console.log('Error detected:', e);
-          if (!redirected) {
-            console.log('404 or navigation error - redirecting to Play Store');
-            redirectToPlayStore();
-          }
-        });
-
-        // Catch unhandled promise rejections
-        window.addEventListener('unhandledrejection', function(e) {
-          console.log('Promise rejection detected:', e);
-          if (!redirected) {
-            console.log('Navigation failed - redirecting to Play Store');
-            redirectToPlayStore();
-          }
-        });
-
-        // Catch navigation errors (most important for 404)
-        window.addEventListener('beforeunload', function(e) {
-          // If we're leaving the page due to navigation failure, redirect to Play Store
-          if (!redirected && !document.hidden) {
-            setTimeout(() => {
-              if (!redirected) {
-                console.log('Navigation interrupted - likely 404');
-                redirectToPlayStore();
-              }
-            }, 100);
-          }
-        });
-
-        // Handle Play Store button click
-        playstoreBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          redirectToPlayStore();
-        });
-
-        // DETECT PAGE VISIBILITY (app opened successfully)
         document.addEventListener('visibilitychange', function() {
           if (document.hidden) {
-            // App likely opened, mark as redirected to prevent fallbacks
             redirected = true;
             console.log('Page hidden - app likely opened');
-          } else if (!redirected) {
-            // User came back, show fallback
-            setTimeout(() => {
-              if (!redirected) {
-                showFallback();
-              }
-            }, 500);
           }
         });
 
-        // Main execution
         window.addEventListener('load', function() {
-          setTimeout(() => {
-            attemptAppOpen();
-          }, 500);
+          setTimeout(attemptAppOpen, 500);
         });
 
       })();
