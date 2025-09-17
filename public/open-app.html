@@ -1,24 +1,287 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Open App</title>
-    <script>
-      window.onload = function () {
-        var appLink = "app://results"; // replace with your actual scheme & path
-        var playStoreLink =
-          "https://play.google.com/store/apps/details?id=app.solidapps.lotto";
+    <title>Open Lotto App</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #FF5252, #D32F2F);
+        color: white;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
 
-        // Try to open app
-        window.location = appLink;
+      .container {
+        max-width: 400px;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
 
-        // Fallback after 1 second
-        setTimeout(function () {
-          window.location = playStoreLink;
-        }, 1000);
-      };
-    </script>
+      .logo {
+        font-size: 48px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+        margin: 0 0 10px 0;
+        font-weight: 600;
+      }
+
+      .status {
+        font-size: 16px;
+        margin: 20px 0;
+        opacity: 0.9;
+      }
+
+      .spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 3px solid white;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .fallback-btn {
+        background: white;
+        color: #D32F2F;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 20px;
+        transition: transform 0.2s;
+      }
+
+      .fallback-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
   </head>
   <body>
-    <h2>Opening Lotto App...</h2>
+    <div class="container">
+      <div class="logo">🎰</div>
+      <h1>Kerala Lotto App</h1>
+
+      <div id="loading-state">
+        <div class="spinner"></div>
+        <div class="status">Opening app...</div>
+      </div>
+
+      <div id="fallback-state" class="hidden">
+        <div class="status">App not installed? Download from Play Store</div>
+        <a href="https://play.google.com/store/apps/details?id=app.solidapps.lotto"
+           class="fallback-btn" id="playstore-btn">
+          📱 Download App
+        </a>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        // Configuration
+        const config = {
+          appScheme: "app://results",
+          playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
+          fallbackDelay: 2500, // Increased for better UX
+          visibilityDelay: 1000 // Delay before checking visibility
+        };
+
+        let redirected = false;
+        let startTime = Date.now();
+
+        // DOM elements
+        const loadingState = document.getElementById('loading-state');
+        const fallbackState = document.getElementById('fallback-state');
+        const playstoreBtn = document.getElementById('playstore-btn');
+
+        // Enhanced app detection using multiple methods
+        function detectAppInstallation() {
+          return new Promise((resolve) => {
+            let resolved = false;
+
+            // Method 1: Page visibility change (most reliable)
+            const visibilityHandler = () => {
+              if (!resolved && document.hidden) {
+                resolved = true;
+                resolve(true); // App likely opened
+              }
+            };
+
+            // Method 2: Window blur event
+            const blurHandler = () => {
+              if (!resolved) {
+                resolved = true;
+                resolve(true); // App likely opened
+              }
+            };
+
+            // Method 3: Focus change with delay
+            const focusHandler = () => {
+              setTimeout(() => {
+                if (!resolved && document.hasFocus()) {
+                  resolved = true;
+                  resolve(false); // Still on web page
+                }
+              }, 300);
+            };
+
+            // Add event listeners
+            document.addEventListener('visibilitychange', visibilityHandler);
+            window.addEventListener('blur', blurHandler);
+            window.addEventListener('focus', focusHandler);
+
+            // Cleanup function
+            const cleanup = () => {
+              document.removeEventListener('visibilitychange', visibilityHandler);
+              window.removeEventListener('blur', blurHandler);
+              window.removeEventListener('focus', focusHandler);
+            };
+
+            // Fallback timeout
+            setTimeout(() => {
+              if (!resolved) {
+                resolved = true;
+                cleanup();
+                resolve(false); // Assume app not installed
+              }
+            }, config.fallbackDelay);
+
+            // Try to open the app after a short delay
+            setTimeout(() => {
+              if (!resolved) {
+                try {
+                  // Try multiple methods for better compatibility
+                  if (window.location.protocol === 'https:') {
+                    // For HTTPS, try both methods
+                    window.location.href = config.appScheme;
+                    // Fallback for some browsers
+                    setTimeout(() => {
+                      if (!resolved) {
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = config.appScheme;
+                        document.body.appendChild(iframe);
+                        setTimeout(() => document.body.removeChild(iframe), 100);
+                      }
+                    }, 100);
+                  } else {
+                    // For HTTP, use iframe method
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = config.appScheme;
+                    document.body.appendChild(iframe);
+                    setTimeout(() => {
+                      if (document.body.contains(iframe)) {
+                        document.body.removeChild(iframe);
+                      }
+                    }, 100);
+                  }
+                } catch (e) {
+                  console.log('Error opening app:', e);
+                }
+              }
+            }, config.visibilityDelay);
+          });
+        }
+
+        // Show fallback UI
+        function showFallback() {
+          if (redirected) return;
+
+          loadingState.classList.add('hidden');
+          fallbackState.classList.remove('hidden');
+
+          // Update status based on time elapsed
+          const elapsed = Date.now() - startTime;
+          const statusEl = fallbackState.querySelector('.status');
+
+          if (elapsed > 3000) {
+            statusEl.textContent = "App not found. Get it from Play Store!";
+          }
+        }
+
+        // Redirect to Play Store
+        function redirectToPlayStore() {
+          if (redirected) return;
+          redirected = true;
+
+          // Add tracking if needed
+          try {
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'app_fallback', {
+                'event_category': 'deep_link',
+                'event_label': 'playstore_redirect'
+              });
+            }
+          } catch (e) {}
+
+          window.location.href = config.playStoreUrl;
+        }
+
+        // Handle Play Store button click
+        playstoreBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          redirectToPlayStore();
+        });
+
+        // Main execution
+        window.addEventListener('load', function() {
+          detectAppInstallation().then(function(appOpened) {
+            if (!appOpened) {
+              showFallback();
+            }
+            // If app opened successfully, user won't see the fallback
+          });
+        });
+
+        // Handle page visibility for better UX
+        document.addEventListener('visibilitychange', function() {
+          if (document.hidden) {
+            // User likely switched to app
+            redirected = true;
+          } else if (!redirected) {
+            // User came back, show fallback after delay
+            setTimeout(() => {
+              if (!redirected) {
+                showFallback();
+              }
+            }, 500);
+          }
+        });
+
+        // Prevent multiple redirects
+        window.addEventListener('beforeunload', function() {
+          redirected = true;
+        });
+
+      })();
+    </script>
   </body>
 </html>
