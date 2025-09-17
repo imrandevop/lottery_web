@@ -3,13 +3,118 @@
 <head>
   <meta charset="utf-8">
   <title>Opening Kerala Lotto App...</title>
-  <meta http-equiv="refresh" content="0; url=/open-app.html">
-  <script>
-    // Immediate redirect to the deep link handler
-    window.location.href = '/open-app.html';
-  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #FF5252, #D32F2F);
+      color: white;
+      text-align: center;
+      padding: 50px 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+    }
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .btn {
+      background: white;
+      color: #D32F2F;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    .hidden { display: none; }
+  </style>
 </head>
 <body>
-  <p>Redirecting to app...</p>
+  <div class="container">
+    <div style="font-size: 48px; margin-bottom: 20px;">🎰</div>
+    <h1>Kerala Lotto App</h1>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Opening app...</p>
+    </div>
+
+    <div id="fallback" class="hidden">
+      <p>App not installed?</p>
+      <a href="https://play.google.com/store/apps/details?id=app.solidapps.lotto" class="btn">
+        📱 Download App
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const playStoreUrl = "https://play.google.com/store/apps/details?id=app.solidapps.lotto";
+    let redirected = false;
+
+    // Show fallback UI
+    function showFallback() {
+      if (redirected) return;
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('fallback').classList.remove('hidden');
+    }
+
+    // Redirect to Play Store
+    function goToPlayStore() {
+      if (redirected) return;
+      redirected = true;
+      window.location.href = playStoreUrl;
+    }
+
+    // Try to open app
+    function tryOpenApp() {
+      // Listen for page becoming hidden (app opened)
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          redirected = true; // App opened successfully
+        }
+      });
+
+      // Try to open app
+      try {
+        window.location.href = 'app://results';
+      } catch (e) {
+        setTimeout(showFallback, 500);
+        return;
+      }
+
+      // Fallback timer
+      setTimeout(() => {
+        if (!redirected) {
+          showFallback();
+        }
+      }, 2500);
+    }
+
+    // Catch any navigation errors and redirect to Play Store
+    window.addEventListener('error', function() {
+      if (!redirected) {
+        goToPlayStore();
+      }
+    });
+
+    // Start the process
+    setTimeout(tryOpenApp, 500);
+  </script>
 </body>
 </html>
