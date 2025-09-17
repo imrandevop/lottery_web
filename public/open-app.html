@@ -100,11 +100,6 @@
            class="fallback-btn" id="playstore-btn">
           📱 Download App
         </a>
-
-        <!-- Debug info (remove in production) -->
-        <div style="margin-top: 20px; font-size: 12px; opacity: 0.7;" id="debug-info">
-          Debug: Check browser console for logs
-        </div>
       </div>
     </div>
 
@@ -112,166 +107,92 @@
       (function() {
         // Configuration
         const config = {
-          appScheme: "app://results",
           playStoreUrl: "https://play.google.com/store/apps/details?id=app.solidapps.lotto",
-          fallbackDelay: 2000, // Reduced - faster fallback for mobile
-          visibilityDelay: 500 // Give a bit more time for app to respond
+          fallbackDelay: 2500
         };
 
         let redirected = false;
-        let startTime = Date.now();
 
         // DOM elements
         const loadingState = document.getElementById('loading-state');
         const fallbackState = document.getElementById('fallback-state');
         const playstoreBtn = document.getElementById('playstore-btn');
 
-        // Enhanced app detection using multiple methods
-        function detectAppInstallation() {
-          return new Promise((resolve) => {
-            let resolved = false;
-            let appOpenAttempted = false;
+        // Detect mobile platform
+        const isAndroid = /android/i.test(navigator.userAgent);
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
-            // Method 1: Page visibility change (most reliable)
-            const visibilityHandler = () => {
-              if (!resolved && document.hidden && appOpenAttempted) {
-                resolved = true;
-                cleanup();
-                resolve(true); // App likely opened
-              }
-            };
+        // Create the proper deep link URL
+        function createAppLink() {
+          if (isAndroid) {
+            // Android Intent URL with automatic fallback
+            return `intent://results#Intent;scheme=app;package=app.solidapps.lotto;S.browser_fallback_url=${encodeURIComponent(config.playStoreUrl)};end`;
+          } else if (isIOS) {
+            // iOS Universal Link (if you have one) or regular scheme
+            return "app://results";
+          } else {
+            // Desktop - direct to Play Store
+            return config.playStoreUrl;
+          }
+        }
 
-            // Method 2: Window blur event (backup for older browsers)
-            const blurHandler = () => {
-              if (!resolved && appOpenAttempted) {
-                setTimeout(() => {
-                  if (!resolved) {
-                    resolved = true;
-                    cleanup();
-                    resolve(true); // App likely opened
-                  }
-                }, 300);
-              }
-            };
+        // Attempt to open app with proper fallback
+        function attemptAppOpen() {
+          const appUrl = createAppLink();
 
-            // Method 3: Page focus return detection
-            const focusHandler = () => {
-              if (!resolved && appOpenAttempted) {
-                // If page regains focus quickly, app probably didn't open
-                setTimeout(() => {
-                  if (!resolved && document.hasFocus()) {
-                    resolved = true;
-                    cleanup();
-                    resolve(false); // Still on web page
-                  }
-                }, 100);
-              }
-            };
+          console.log('Attempting to open:', appUrl);
 
-            // Add event listeners
-            document.addEventListener('visibilitychange', visibilityHandler);
-            window.addEventListener('blur', blurHandler);
-            window.addEventListener('focus', focusHandler);
+          if (isAndroid) {
+            // Android Intent URLs handle fallback automatically
+            window.location.href = appUrl;
 
-            // Cleanup function
-            const cleanup = () => {
-              document.removeEventListener('visibilitychange', visibilityHandler);
-              window.removeEventListener('blur', blurHandler);
-              window.removeEventListener('focus', focusHandler);
-            };
-
-            // Mandatory fallback timeout - always triggers
+            // Set a timeout to show manual fallback if needed
             setTimeout(() => {
-              if (!resolved) {
-                resolved = true;
-                cleanup();
-                resolve(false); // Assume app not installed
-                console.log('Fallback timeout triggered');
+              if (!redirected) {
+                showFallback();
               }
             }, config.fallbackDelay);
 
-            // Try to open the app immediately
+          } else if (isIOS) {
+            // iOS approach with visibility detection
+            let resolved = false;
+
+            // Listen for page visibility change
+            const visibilityHandler = () => {
+              if (document.hidden && !resolved) {
+                resolved = true;
+                // App opened successfully
+                document.removeEventListener('visibilitychange', visibilityHandler);
+              }
+            };
+
+            document.addEventListener('visibilitychange', visibilityHandler);
+
+            // Try to open app
+            window.location.href = appUrl;
+
+            // Fallback timeout
             setTimeout(() => {
               if (!resolved) {
-                appOpenAttempted = true;
-                try {
-                  console.log('Attempting to open app...');
-
-                  // Mobile-optimized approach
-                  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
-
-                  if (isMobile) {
-                    // Mobile-safe approach: Only use iframe method to avoid 404
-                    try {
-                      const iframe = document.createElement('iframe');
-                      iframe.style.display = 'none';
-                      iframe.style.width = '1px';
-                      iframe.style.height = '1px';
-                      iframe.style.border = 'none';
-                      iframe.src = config.appScheme;
-
-                      // Prevent iframe errors from showing
-                      iframe.onerror = () => {
-                        console.log('App not installed - iframe method failed silently');
-                      };
-
-                      // Add iframe
-                      document.body.appendChild(iframe);
-
-                      // Remove iframe quickly to prevent any navigation issues
-                      setTimeout(() => {
-                        try {
-                          if (document.body.contains(iframe)) {
-                            document.body.removeChild(iframe);
-                          }
-                        } catch (e) {
-                          console.log('Iframe cleanup error:', e);
-                        }
-                      }, 100);
-
-                    } catch (e) {
-                      console.log('Mobile app opening failed:', e);
-                    }
-
-                  } else {
-                    // For desktop browsers - safer approach
-                    try {
-                      // Create temporary anchor element
-                      const link = document.createElement('a');
-                      link.href = config.appScheme;
-                      link.style.display = 'none';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    } catch (e) {
-                      console.log('Desktop app opening failed:', e);
-                    }
-                  }
-
-                } catch (e) {
-                  console.log('Error opening app:', e);
-                  // Even on error, mark as attempted
-                  appOpenAttempted = true;
-                }
+                resolved = true;
+                document.removeEventListener('visibilitychange', visibilityHandler);
+                showFallback();
               }
-            }, 300); // Reduced delay for faster response
-          });
+            }, config.fallbackDelay);
+
+          } else {
+            // Desktop - directly show Play Store
+            window.location.href = appUrl;
+          }
         }
 
         // Show fallback UI
         function showFallback() {
           if (redirected) return;
 
+          console.log('Showing fallback UI');
           loadingState.classList.add('hidden');
           fallbackState.classList.remove('hidden');
-
-          // Update status based on time elapsed
-          const elapsed = Date.now() - startTime;
-          const statusEl = fallbackState.querySelector('.status');
-
-          if (elapsed > 3000) {
-            statusEl.textContent = "App not found. Get it from Play Store!";
-          }
         }
 
         // Redirect to Play Store
@@ -279,7 +200,7 @@
           if (redirected) return;
           redirected = true;
 
-          // Add tracking if needed
+          // Add tracking if available
           try {
             if (typeof gtag !== 'undefined') {
               gtag('event', 'app_fallback', {
@@ -298,58 +219,24 @@
           redirectToPlayStore();
         });
 
-        // Handle navigation errors (like 404 from app schemes)
-        window.addEventListener('error', function(e) {
-          console.log('Page error detected, showing fallback');
-          if (!redirected) {
-            showFallback();
-          }
-        });
-
-        // Handle unhandled promise rejections
-        window.addEventListener('unhandledrejection', function(e) {
-          console.log('Promise rejection detected, showing fallback');
-          if (!redirected) {
-            showFallback();
-          }
-        });
-
         // Main execution
         window.addEventListener('load', function() {
-          detectAppInstallation().then(function(appOpened) {
-            if (!appOpened) {
-              showFallback();
-            }
-            // If app opened successfully, user won't see the fallback
-          });
-
-          // Aggressive fallback - always show fallback after 3 seconds as backup
+          // Small delay to ensure page is fully loaded
           setTimeout(() => {
-            if (!redirected) {
-              console.log('Aggressive fallback triggered');
-              showFallback();
-            }
-          }, 3000);
+            attemptAppOpen();
+          }, 500);
         });
 
-        // Handle page visibility for better UX
+        // Handle page becoming visible again (user returned from attempt)
         document.addEventListener('visibilitychange', function() {
-          if (document.hidden) {
-            // User likely switched to app
-            redirected = true;
-          } else if (!redirected) {
-            // User came back, show fallback after delay
+          if (!document.hidden && !redirected) {
+            // User came back to page, show fallback
             setTimeout(() => {
               if (!redirected) {
                 showFallback();
               }
-            }, 500);
+            }, 1000);
           }
-        });
-
-        // Prevent multiple redirects
-        window.addEventListener('beforeunload', function() {
-          redirected = true;
         });
 
       })();
