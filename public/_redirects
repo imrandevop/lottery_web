@@ -1,2 +1,4 @@
-/app/results /app/results.html 200
-/app/* /app/results.html 200
+# SPA fallback for React Router
+/app/* /index.html 200
+/deeplink/* /index.html 200
+/* /index.html 200

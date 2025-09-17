@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, useSearchParams } from 'react-router-dom';
 import KeralaLotteryApp from './App';
 import AppLinkHandler from './components/AppLinkHandler';
 
@@ -79,14 +79,16 @@ const AppRouter = () => {
         {/* Main app route */}
         <Route path="/" element={<KeralaLotteryApp />} />
 
-        {/* Deep link routes for App Links */}
+        {/* Specific deep link routes (more specific routes first) */}
+        <Route path="/app/results" element={<KeralaLotteryApp />} />
+        <Route path="/app/lottery" element={<DeepLinkHandler />} />
+        <Route path="/app/download" element={<AppLinkHandler />} />
+
+        {/* Generic deep link routes for App Links */}
         <Route path="/app/:path" element={<DeepLinkHandler />} />
 
         {/* Fallback route for any unmatched deep links */}
         <Route path="/deeplink/:path" element={<DeepLinkHandler />} />
-
-        {/* Legacy app link handler */}
-        <Route path="/app/results" element={<AppLinkHandler />} />
 
         {/* 404 page for unmatched routes */}
         <Route path="*" element={<NotFoundPage />} />
