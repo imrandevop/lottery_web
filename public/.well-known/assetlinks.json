@@ -1,12 +1,16 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "app.solidapps.lotto",
       "sha256_cert_fingerprints": [
         "39:9E:6E:B2:FC:8E:AB:9A:DB:EF:33:3E:9E:84:DF:EB:EC:3B:66:99:B0:3E:09:90:88:77:A3:A9:F2:02:0B:FA",
-        "DD:0C:38:88:C5:49:F5:B2:14:CA:17:FB:84:4A:58:3E:4F:31:78:6F:E3:62:0F:AB:3B:02:C9:34:48:BA:1E:41"
+        "DD:0C:38:88:C5:49:F5:B2:14:CA:17:FB:84:4A:58:3E:4F:31:78:6F:E3:62:0F:AB:3B:02:C9:34:48:BA:1E:41",
+        "44:74:EF:E3:4B:A0:A1:81:C2:F9:B7:82:DF:B9:D2:36:64:18:81:24:03:ED:94:25:23:A0:B1:C4:20:E5:A5:17"
       ]
     }
   }
